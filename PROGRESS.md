@@ -31,6 +31,7 @@ Where the project stands, so work can be picked up from any point.
 - [x] GitHub Actions CI (lint, format, typecheck, test, build)
 - [x] README, architecture doc, this progress file
 - [ ] **To do on your machine:**
+  - [ ] Create `.github/workflows/ci.yml` (contents in the chat; it couldn't be written remotely)
   - [ ] `npm install` (creates `package-lock.json`, which CI needs)
   - [ ] `npm run format` once, then `npm run check` and `npm run build` all pass
   - [ ] `npm run dev` and click through every route
