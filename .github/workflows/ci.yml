@@ -1,5 +1,4 @@
-﻿@'
-name: CI
+﻿name: CI
 
 on:
   push:
@@ -45,4 +44,3 @@ jobs:
       - run: npx prisma migrate deploy
       - run: npm run test:db
       - run: npm run build
-'@ | Set-Content -Path ".github\workflows\ci.yml" -Encoding utf8
