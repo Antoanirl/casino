@@ -69,6 +69,16 @@ Defined in `prisma/schema.prisma`.
 - `npm test`: unit tests, no database (game catalogue, money helpers, RNG uniformity).
 - `npm run test:db`: integration tests against a real PostgreSQL database, including 20 simultaneous bets on one wallet and 5 simultaneous duplicate requests. CI runs them against a throwaway Postgres container on every push.
 
+## Accounts and sessions (Phase 2b)
+
+- **Passwords** are hashed with scrypt (`node:crypto`, N=2^15, r=8, p=1, 16-byte random salt). The parameters are stored in the hash string, so they can be raised later without breaking existing accounts. Verification uses a constant-time comparison.
+- **Login doesn't leak which accounts exist:** an unknown email and a wrong password return the same message, and an unknown email still runs one full hash so both take the same time.
+- **Sessions** live in the database. The cookie holds a random 256-bit token; the `Session` table stores only its SHA-256 hash, so a database leak can't be replayed as a login. Logging out deletes the row.
+- **Cookie flags:** `HttpOnly` (page scripts can't read it), `Secure` in production (HTTPS only), `SameSite=Lax` (not sent with cross-site form posts), 30-day expiry.
+- **Server actions** handle register, login and logout. Next.js rejects action calls from other origins, and every input is validated again on the server with the same Zod schemas the forms use (`src/lib/validation/auth.ts`).
+- **Registration is one transaction:** user, wallet and the 1,000-credit signup ledger entry are created together or not at all.
+- Rate limiting for login and registration is planned for Phase 9.
+
 ## Decisions log
 
 - **2026-10-15: Slots as a hub page.** Navigation has a single "Slots" entry leading to `/slots`, which lists the three games. Keeps the header short and matches the shared-engine design.

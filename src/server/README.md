@@ -11,4 +11,10 @@ Server-only code. Every module here imports `server-only`, so importing one from
   - `createWallet(tx, userId)`: new wallet plus the starting-balance entry
   - `verifyWallet(db, userId)`: checks balance = sum of ledger entries
 
-Planned: `auth/` (Phase 2b), `games/` (Phase 4 onward).
+- `auth/`: accounts and sessions
+  - `password.ts`: scrypt hashing with per-password salt, constant-time verification
+  - `sessions.ts`: database sessions; the cookie holds a random token, the database only its SHA-256 hash
+  - `accounts.ts`: `registerUser` (user + wallet + signup bonus in one transaction), `authenticateUser`
+  - `current-user.ts`: cookie handling, `getCurrentUser()`, `requireUser()`
+
+Planned: `games/` (Phase 4 onward).

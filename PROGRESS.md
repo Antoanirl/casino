@@ -2,14 +2,14 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 2. Database, accounts and ledger (part 2a done in code, waiting on setup)
-**Next step:** finish the 2a setup list below, then start 2b (registration, login, logout).
+**Current phase:** 2. Database, accounts and ledger (2b written, waiting on checks)
+**Next step:** run the 2b checks below; when they pass, Phase 2 is done and Phase 3 (design system and homepage) is next.
 
 ## Roadmap
 
 - [x] Phase 1: Foundation + CI/deploy (live on Vercel, CI green)
 - [ ] **Phase 2: Database, accounts and ledger**
-  - [ ] 2a: PostgreSQL + Prisma, ledger service, secure RNG, idempotency, concurrency tests
+  - [x] 2a: PostgreSQL + Prisma, ledger service, secure RNG, idempotency, concurrency tests
   - [ ] 2b: Registration, login, logout, sessions, real balance in the header
 - [ ] Phase 3: Design system and homepage
 - [ ] Phase 4: Blackjack (server-side round state)
@@ -20,7 +20,32 @@ Where the project stands, so work can be picked up from any point.
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 2a checklist
+## Phase 2b checklist
+
+Code (written):
+
+- [x] Shared Zod validation for email, username and password (`src/lib/validation/auth.ts`)
+- [x] scrypt password hashing with constant-time verification (`src/server/auth/password.ts`)
+- [x] Database sessions storing only hashed tokens; HttpOnly, Secure, SameSite=Lax cookie
+- [x] Registration: user + wallet + 1,000-credit bonus in one transaction
+- [x] Login that doesn't reveal whether an email is registered
+- [x] Logout that deletes the session
+- [x] Login and sign-up pages with inline errors (`useActionState`)
+- [x] Header shows username and real balance when signed in
+- [x] Dashboard requires login and shows the balance
+- [x] Unit tests: password hashing, validation rules
+- [x] Database tests: registration, duplicates, login, session expiry and logout
+
+Checks (on your machine):
+
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] `npm run dev`: sign up, see 1,000 credits in the header, log out, log back in
+- [ ] Wrong password shows "Invalid email or password"
+- [ ] `/dashboard` while logged out sends you to the login page
+- [ ] Commit and push; CI green
+- [ ] Same flow works on the live site
+
+## Phase 2a checklist (done)
 
 Code (written):
 
@@ -37,13 +62,13 @@ Code (written):
 
 Setup (on your machine):
 
-- [ ] Create the Neon database in Vercel (Storage) and copy both connection strings into `.env`
-- [ ] Update `.github/workflows/ci.yml` by hand (remote tools can't write into `.github`)
-- [ ] `npm install`
-- [ ] `npx prisma migrate dev --name init` (creates the tables and the `prisma/migrations` folder)
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] Commit and push; CI green, including the database tests
-- [ ] Live `/api/health` shows `"database":"ok"`
+- [x] Create the Neon database in Vercel (Storage) and copy both connection strings into `.env`
+- [x] Update `.github/workflows/ci.yml` by hand (remote tools can't write into `.github`)
+- [x] `npm install`
+- [x] `npx prisma migrate dev --name init` (creates the tables and the `prisma/migrations` folder)
+- [x] `npm run format`, then `npm run check` passes
+- [x] Commit and push; CI green, including the database tests
+- [x] Live `/api/health` shows `"database":"ok"`
 
 ## Phase 1 (done)
 

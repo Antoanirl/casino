@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { NavLink } from "@/components/layout/nav-link";
+import { UserMenu } from "@/components/layout/user-menu";
 import { mainNav } from "@/lib/games";
 import { siteConfig } from "@/lib/site";
 
@@ -21,17 +22,7 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-2 text-sm">
-          <Link href="/login" className="rounded px-3 py-1.5 hover:bg-white/10">
-            Log in
-          </Link>
-          <Link
-            href="/register"
-            className="bg-gold-500 text-felt-950 hover:bg-gold-400 rounded px-3 py-1.5 font-semibold"
-          >
-            Sign up
-          </Link>
-        </div>
+        <UserMenu />
       </div>
     </header>
   );
