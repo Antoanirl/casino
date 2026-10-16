@@ -4,11 +4,11 @@ A play-money online casino built as a portfolio project: Blackjack, European Rou
 
 > **Virtual credits only.** No real money can be deposited, wagered, won or withdrawn, and credits cannot be bought.
 
-_Status: Phase 1 (foundation). See [PROGRESS.md](./PROGRESS.md) for the roadmap and current state._
+_Status: Phase 2 (database, accounts and ledger). See [PROGRESS.md](./PROGRESS.md) for the roadmap and current state._
 
 ## Tech stack
 
-Next.js (App Router) · TypeScript · Tailwind CSS · Zod · Vitest · GitHub Actions. PostgreSQL and Prisma arrive in Phase 2.
+Next.js (App Router) · TypeScript · Tailwind CSS · PostgreSQL (Neon) · Prisma · Zod · Vitest · GitHub Actions · Vercel.
 
 ## Getting started
 
@@ -16,7 +16,9 @@ Requirements: Node.js 20.9 or newer (22 recommended, see `.nvmrc`).
 
 ```bash
 npm install
-cp .env.example .env.local   # Windows PowerShell: Copy-Item .env.example .env.local
+cp .env.example .env         # Windows PowerShell: Copy-Item .env.example .env
+# fill in DATABASE_URL and DATABASE_URL_UNPOOLED
+npx prisma migrate dev
 npm run dev
 ```
 
@@ -34,6 +36,9 @@ Open http://localhost:3000.
 | `npm run format:check` | Check formatting without changing files |
 | `npm run typecheck`    | Generate route types and run `tsc`      |
 | `npm test`             | Run unit tests (Vitest)                 |
+| `npm run test:db`      | Run database integration tests          |
+| `npm run db:migrate`   | Create/apply database migrations        |
+| `npm run db:studio`    | Browse the database in Prisma Studio    |
 | `npm run check`        | Lint, format check, typecheck and tests |
 
 ## Project structure
@@ -42,4 +47,4 @@ See [docs/architecture.md](./docs/architecture.md) for folder layout, routes, co
 
 ## Continuous integration
 
-Every push to `main` and every pull request runs lint, format check, typecheck, tests and a production build (`.github/workflows/ci.yml`).
+Every push to `main` and every pull request runs lint, format check, typecheck, unit tests, database tests against a throwaway PostgreSQL container, and a production build (`.github/workflows/ci.yml`).

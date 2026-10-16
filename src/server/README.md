@@ -1,11 +1,14 @@
 # src/server
 
-Server-only code. Nothing in this folder may be imported from a client component.
+Server-only code. Every module here imports `server-only`, so importing one from a client component fails the build.
 
-Planned contents (Phase 2 onward):
+- `env.ts`: validated server secrets (`DATABASE_URL`), checked on first use
+- `db.ts`: shared Prisma client (`getDb()`)
+- `rng.ts`: cryptographically secure randomness for every game outcome (`randomInt`, `shuffle`, `pick`, `randomToken`)
+- `ledger/`: the only code allowed to change a balance
+  - `postLedgerEntry(db, entry)`: one standalone, idempotent balance change
+  - `applyLedgerEntry(tx, entry)`: the same, inside a transaction a game already opened
+  - `createWallet(tx, userId)`: new wallet plus the starting-balance entry
+  - `verifyWallet(db, userId)`: checks balance = sum of ledger entries
 
-- `db.ts`: Prisma client singleton
-- `env.ts`: validated server secrets (`DATABASE_URL`, `AUTH_SECRET`)
-- `ledger/`: the only code allowed to change a balance; every change runs in a DB transaction and writes a transaction record
-- `rng.ts`: cryptographically secure randomness for all game outcomes
-- `games/`: server-side game engines (blackjack rounds, roulette spins, slot engine)
+Planned: `auth/` (Phase 2b), `games/` (Phase 4 onward).

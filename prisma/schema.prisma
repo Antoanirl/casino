@@ -1,0 +1,91 @@
+// Database schema. After changing this file run: npx prisma migrate dev --name <what-changed>
+//
+// Money rule: every amount and balance is an integer number of "minor units",
+// where 100 minor units = 1 credit. Integers avoid floating-point rounding
+// errors (e.g. a 3:2 blackjack payout on 1 credit is exactly 150 units).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Pooled connection, used by the running app.
+  url       = env("DATABASE_URL")
+  // Direct (unpooled) connection, used by migrations.
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  /// Stored lowercased and trimmed.
+  email        String   @unique
+  /// Public display name, stored lowercased for uniqueness checks.
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  wallet        Wallet?
+  sessions      Session[]
+  ledgerEntries LedgerEntry[]
+}
+
+/// Login session. The browser cookie holds a random token; only its SHA-256
+/// hash is stored here, so a leaked database can't be used to log in.
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// One wallet per user. `balance` must only ever change through the ledger
+/// service (src/server/ledger), which also writes a LedgerEntry.
+model Wallet {
+  userId    String   @id
+  /// Minor units (100 = 1 credit). Never negative.
+  balance   Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum LedgerEntryType {
+  SIGNUP_BONUS
+  BET
+  PAYOUT
+  REFUND
+  ADJUSTMENT
+}
+
+/// Append-only record of every balance change. Summing `amount` for a user
+/// always equals their wallet balance; the dashboard is built from these rows.
+model LedgerEntry {
+  id             String          @id @default(cuid())
+  userId         String
+  type           LedgerEntryType
+  /// Signed minor units: negative for bets, positive for payouts and bonuses.
+  amount         Int
+  /// Wallet balance right after this entry was applied.
+  balanceAfter   Int
+  /// Client- or server-supplied key. A repeated key returns the original
+  /// entry instead of charging or paying twice.
+  idempotencyKey String
+  /// Which game produced the entry ("blackjack", "roulette", "slots:classic"...).
+  game           String?
+  /// ID of the game round this entry belongs to (game round tables come in Phase 4).
+  reference      String?
+  metadata       Json?
+  createdAt      DateTime        @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, idempotencyKey])
+  @@index([userId, createdAt])
+  @@index([reference])
+}
