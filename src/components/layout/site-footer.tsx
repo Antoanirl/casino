@@ -3,7 +3,7 @@ import { siteConfig } from "@/lib/site";
 
 export function SiteFooter() {
   return (
-    <footer className="border-rule bg-paper-deep mt-16 border-t">
+    <footer className="border-rule bg-paper-deep border-t">
       <div className="text-ink-soft mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 text-sm sm:flex-row sm:items-start sm:justify-between sm:px-6">
         <div className="flex max-w-md gap-3">
           <StampMark className="h-7 w-7 shrink-0" />

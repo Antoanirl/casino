@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PagePlaceholder } from "@/components/ui/page-placeholder";
+import { GameShell } from "@/components/games/game-shell";
 import { SLOT_SLUGS, getSlotGame } from "@/lib/games";
 
 interface SlotPageProps {
@@ -24,13 +24,5 @@ export default async function SlotGamePage({ params }: SlotPageProps) {
   const game = getSlotGame(slug);
   if (!game) notFound();
 
-  return (
-    <PagePlaceholder
-      title={game.name}
-      phase={game.slug === "classic" ? "Phase 6" : "Phase 7"}
-      description={game.description}
-      backHref="/slots"
-      backLabel="Back to slots"
-    />
-  );
+  return <GameShell game={game} backHref="/slots" backLabel="All slots" />;
 }

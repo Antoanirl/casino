@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { SLOT_SLUGS, games, getSlotGame, isSlotSlug, mainNav, slotGames } from "@/lib/games";
+import {
+  SLOT_SLUGS,
+  games,
+  getGame,
+  getSlotGame,
+  isSlotSlug,
+  mainNav,
+  slotGames,
+} from "@/lib/games";
 
 describe("game catalogue", () => {
   it("lists five games: two table games and three slots", () => {
@@ -29,5 +37,19 @@ describe("game catalogue", () => {
     for (const item of mainNav) {
       expect(item.href.startsWith("/")).toBe(true);
     }
+  });
+});
+
+describe("game pages", () => {
+  it("gives every game an opening phase and at least two rules", () => {
+    for (const game of games) {
+      expect(game.opensIn).toMatch(/^Phase \d+$/);
+      expect(game.rules.length).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it("looks games up by slug", () => {
+    expect(getGame("roulette")?.name).toBe("Roulette");
+    expect(getGame("poker")).toBeUndefined();
   });
 });

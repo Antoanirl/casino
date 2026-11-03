@@ -14,6 +14,10 @@ export interface Game {
   href: string;
   description: string;
   status: GameStatus;
+  /** Roadmap phase in which the game becomes playable. */
+  opensIn: string;
+  /** Short facts shown on the game's page, as term/definition pairs. */
+  rules: readonly { term: string; detail: string }[];
 }
 
 export const SLOT_SLUGS = ["classic", "gems", "adventure"] as const;
@@ -27,6 +31,13 @@ export const games: readonly Game[] = [
     href: "/blackjack",
     description: "Beat the dealer to 21 with hit, stand, double down and split.",
     status: "coming-soon",
+    opensIn: "Phase 4",
+    rules: [
+      { term: "Goal", detail: "Get closer to 21 than the dealer without going over." },
+      { term: "Your moves", detail: "Hit, stand, double down, and split a pair." },
+      { term: "Blackjack", detail: "An ace with a ten-value card pays 3 to 2." },
+      { term: "Dealer", detail: "Draws until reaching 17 or more." },
+    ],
   },
   {
     slug: "roulette",
@@ -35,6 +46,16 @@ export const games: readonly Game[] = [
     href: "/roulette",
     description: "European single-zero roulette with inside and outside bets.",
     status: "coming-soon",
+    opensIn: "Phase 5",
+    rules: [
+      { term: "Wheel", detail: "European single zero: 37 pockets, numbered 0 to 36." },
+      { term: "Inside bets", detail: "A single number pays 35 to 1." },
+      {
+        term: "Outside bets",
+        detail: "Red or black and odd or even pay 1 to 1; dozens and columns pay 2 to 1.",
+      },
+      { term: "Zero", detail: "Outside bets lose when the ball lands on 0." },
+    ],
   },
   {
     slug: "classic",
@@ -43,6 +64,18 @@ export const games: readonly Game[] = [
     href: "/slots/classic",
     description: "Three reels of fruit, bars and sevens.",
     status: "coming-soon",
+    opensIn: "Phase 6",
+    rules: [
+      { term: "Reels", detail: "Three reels of fruit, bars and sevens." },
+      {
+        term: "Paytable",
+        detail: "Every winning combination and its payout is listed before you spin.",
+      },
+      {
+        term: "Return",
+        detail: "The payout rate is checked by simulating millions of spins in the test suite.",
+      },
+    ],
   },
   {
     slug: "gems",
@@ -51,6 +84,12 @@ export const games: readonly Game[] = [
     href: "/slots/gems",
     description: "Five reels of gemstones with wilds and multipliers.",
     status: "coming-soon",
+    opensIn: "Phase 7",
+    rules: [
+      { term: "Reels", detail: "Five reels of gemstones." },
+      { term: "Specials", detail: "Wild symbols substitute for others; multipliers raise a win." },
+      { term: "Engine", detail: "Same slot engine and payout checks as Classic Slots." },
+    ],
   },
   {
     slug: "adventure",
@@ -59,6 +98,12 @@ export const games: readonly Game[] = [
     href: "/slots/adventure",
     description: "An expedition-themed slot with a bonus round.",
     status: "coming-soon",
+    opensIn: "Phase 7",
+    rules: [
+      { term: "Reels", detail: "Five reels themed on an expedition." },
+      { term: "Bonus round", detail: "Three map symbols start a round of free spins." },
+      { term: "Engine", detail: "Same slot engine and payout checks as Classic Slots." },
+    ],
   },
 ];
 
@@ -66,6 +111,10 @@ export const slotGames = games.filter((game) => game.category === "slots");
 
 export function isSlotSlug(value: string): value is SlotSlug {
   return (SLOT_SLUGS as readonly string[]).includes(value);
+}
+
+export function getGame(slug: string): Game | undefined {
+  return games.find((game) => game.slug === slug);
 }
 
 export function getSlotGame(slug: string): Game | undefined {

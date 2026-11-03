@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 3. Design system and homepage (3a done, 3b next)
-**Next step:** 3b: loading and empty states, game-page shells, mobile review.
+**Current phase:** 3. Design system and homepage (3b written, waiting on checks)
+**Next step:** run the 3b checks below; then Phase 3 is done and Phase 4 (Blackjack) is next.
 
 ## Roadmap
 
@@ -21,6 +21,23 @@ Where the project stands, so work can be picked up from any point.
 - [ ] Phase 8: Dashboard and statistics
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
+
+## Phase 3b checklist
+
+Code (written):
+
+- [x] Game page shells: closed felt table, rules, opening phase, balance or sign-up prompt (`GameShell`)
+- [x] Opening phase and rules for every game in `src/lib/games.ts`, with tests
+- [x] Loading states: page skeleton (`src/app/loading.tsx`) and ledger skeleton on the dashboard
+- [x] Empty ledger state
+- [x] Ledger margin rule limited to the entry rows; footer gap trimmed (re-applied: the first fix didn't make it into the commit)
+
+Checks (on your machine):
+
+- [ ] Delete the unused placeholder: `git rm src/components/ui/page-placeholder.tsx`
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] Commit and push; CI green
+- [ ] Review game pages, login, sign-up and dashboard at phone width on the live site
 
 ## Phase 3a checklist (done)
 
@@ -40,7 +57,7 @@ Checks (on your machine):
 - [x] `npm run dev`: homepage logged out (example ledger) and logged in (your entries)
 - [x] Header and homepage look right on a narrow window (phone width)
 - [x] Commit and push; CI green; live site updated
-- [x] Reviewed live at phone and desktop width; margin rule now stops at the ledger rows, footer gap trimmed
+- [x] Reviewed live at phone and desktop width
 - [x] Vercel deployment protection turned off so the live site is public
 
 ## Phase 2b checklist (done)
