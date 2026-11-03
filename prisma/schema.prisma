@@ -31,6 +31,7 @@ model User {
   ledgerEntries   LedgerEntry[]
   blackjackRounds BlackjackRound[]
   rouletteSpins   RouletteSpin[]
+  slotSpins       SlotSpin[]
 }
 
 /// Login session. The browser cookie holds a random token; only its SHA-256
@@ -143,4 +144,27 @@ model RouletteSpin {
 
   @@unique([userId, spinKey])
   @@index([userId, createdAt])
+}
+
+/// One slot spin, for any slot game. The outcome is fully determined by the game's config
+/// and the reel stops, so the stops are all that needs storing to replay or audit a spin.
+model SlotSpin {
+  id          String   @id @default(cuid())
+  userId      String
+  /// Slot game slug: "classic", "gems", "adventure".
+  game        String
+  /// Key sent with the spin request: repeating it returns this spin instead of a new one.
+  spinKey     String
+  /// Minor units.
+  bet         Int
+  /// Reel stops chosen by the secure RNG, one per reel.
+  stops       Json
+  /// Minor units returned to the player (0 on a loss).
+  totalPayout Int
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, spinKey])
+  @@index([userId, game, createdAt])
 }

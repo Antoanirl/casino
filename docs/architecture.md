@@ -138,6 +138,19 @@ Rules engine in `src/server/games/roulette/engine.ts`, pure like blackjack's: th
 
 **Tests:** every pocket against every bet type, including an exact check that each bet type returns 36/37 of its stake over the 37 pockets (house edge exactly 1/37); wheel order and colours; table limits; and database tests for payouts, losses, repeated and simultaneous spins, and unaffordable stakes.
 
+## Slots (Phase 6)
+
+**One engine, many games.** `src/server/games/slots/engine.ts` knows nothing about fruit or gems. A game is a `SlotConfig` (`src/server/games/slots/games/`): its symbols (normal, wild or scatter), one reel strip per reel, paylines, a line paytable and an optional scatter paytable, and the bets it accepts. Adding a game means adding a config.
+
+- **Spin:** the server picks a stop on every reel with the secure RNG; the window shows 3 rows from each stop. Each payline pays the best left-to-right run (a wild stands in for normal symbols, a scatter breaks a line); scatters pay anywhere on screen.
+- **Pays are multiples of the total bet**, written in hundredths (`10000` = 100x), and bets are whole credits, so every payout is a whole number of minor units.
+- **Exact return to player:** `theoreticalRtp()` computes it from the strips and paytables without simulation. Every stop is equally likely, so on any single row each reel shows each symbol with its strip frequency, independently of the other reels; every payline therefore has the same expected pay. Scatter pays use the distribution of scatter counts in each reel's window, combined across reels.
+- **Classic Slots:** 3 reels, 5 paylines, 32-symbol strips. **Return to player 95.70%**, hit frequency 25.6%, top win 100x the bet.
+
+**Tests** (`slots.test.ts`): every config passes `validateConfig()`; the RTP formula matches brute force over all 32,768 stop combinations exactly (and over a toy game with wilds and scatters); line, wild and scatter rules; and a **1,000,000-spin simulation** whose average return must land within five standard errors of the theoretical figure.
+
+**Server:** `SlotSpin` rows store the game, bet and reel stops (the outcome is fully determined by them). A spin is one transaction (save the spin, debit the bet, credit the win), with the same `(userId, spinKey)` replay protection as roulette. Ledger entries use the game name `slots:<slug>`.
+
 ## Decisions log
 
 - **2026-10-15: Slots as a hub page.** Navigation has a single "Slots" entry leading to `/slots`, which lists the three games. Keeps the header short and matches the shared-engine design.
@@ -147,3 +160,4 @@ Rules engine in `src/server/games/roulette/engine.ts`, pure like blackjack's: th
 - **2026-10-16: Hand-rolled session auth (coming in 2b).** Password hashing with `node:crypto` scrypt and database sessions. No third-party auth service, no native modules to compile on Windows, and every security decision is visible in the code.
 - **2026-11-03: Ledger-paper visual identity.** A light, accounting-inspired theme instead of the dark felt-and-gold casino default: it matches the name, makes the ledger the hero, and keeps felt for the game tables where it belongs.
 - **2026-11-03: Fresh shuffle every blackjack round.** Rounds are independent, card counting is pointless, and a round's full state is just its shoe and the player's actions, which keeps storage and replay simple.
+- **2026-11-03: Slot pays as multiples of the total bet.** Rather than a per-line bet, every pay is a multiple of the whole bet in hundredths. Players choose one number, payouts stay whole minor units, and the RTP formula stays simple.

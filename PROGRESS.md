@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 5. Roulette (5b written, waiting on checks)
-**Next step:** run the 5b checks below and play a few spins; then Phase 5 is done and Phase 6 (slot engine + Classic Slots) is next.
+**Current phase:** 6. Slot engine + Classic Slots (6a written, waiting on checks)
+**Next step:** run the 6a checks below (includes a database migration), then 6b (the reels on screen).
 
 ## Roadmap
 
@@ -18,29 +18,49 @@ Where the project stands, so work can be picked up from any point.
   - [x] 4a: Rules engine (deal, hit, stand, double, split, dealer play, payouts) with tests
   - [x] 4b: Server: rounds in the database, bets and payouts through the ledger, actions API
   - [x] 4c: The table: cards, chips, buttons, animations
-- [ ] **Phase 5: Roulette**
+- [x] Phase 5: Roulette (playable on the live site)
   - [x] 5a: Rules engine, spins in the database through the ledger, server actions, tests
-  - [ ] 5b: The table: betting layout, wheel, results
-- [ ] Phase 6: Slot engine + Classic Slots (with RTP simulation test)
+  - [x] 5b: The table: betting layout, wheel, results
+- [ ] **Phase 6: Slot engine + Classic Slots**
+  - [ ] 6a: Config-driven engine, exact RTP, Classic Slots, 1M-spin simulation, spins on the server
+  - [ ] 6b: The machine: reels, bet picker, paytable, wins highlighted
 - [ ] Phase 7: Gem Slots and Adventure Slots (configs on the same engine)
 - [ ] Phase 8: Dashboard and statistics
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 5b checklist
+## Phase 6a checklist
+
+Code (written):
+
+- [x] Slot engine: configs, reel stops, paylines, wilds, scatters, exact RTP (`src/server/games/slots/engine.ts`)
+- [x] Classic Slots config: 3 reels, 5 paylines, RTP 95.70%, hit rate 25.6% (`games/classic.ts`)
+- [x] 12 engine tests including brute-force RTP checks and a 1,000,000-spin simulation (already run here: all pass, about 4 seconds)
+- [x] `SlotSpin` table and spin service: one transaction per spin, repeated spins return the original (`service.ts`)
+- [x] Server action for the machines (`src/app/actions/slots.ts`)
+- [x] 6 database tests: win and loss through the ledger, repeated and simultaneous spins, unknown game, bad and unaffordable bets, recent spins
+
+Checks (on your machine):
+
+- [ ] `npx prisma migrate dev --name slot_spins`
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] Commit and push (including the new migration); CI green, including the database tests
+
+## Phase 5b checklist (done)
 
 Code (written):
 
 - [x] Roulette wheel: SVG in European order, spins to the drawn pocket, no spin with reduced motion (`src/components/roulette/roulette-wheel.tsx`)
 - [x] Roulette table: chip values, number grid with dozens, columns and outside bets, undo and clear, spin, winning spots highlighted, last 12 numbers (`roulette-table.tsx`)
 - [x] Phone layout: the table turned upright in three columns
+- [x] Play-test fixes: chips centred on their spot, steady layout when the result appears, outlined felt spots, wheel scrolls into view on phones
 - [x] Roulette marked playable
 
 Checks (on your machine):
 
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] `npm run dev`: place several bets, spin, try undo and clear, and a narrow window
-- [ ] Commit and push; CI green
+- [x] `npm run format`, then `npm run check` passes
+- [x] `npm run dev`: place several bets, spin, try undo and clear, and a narrow window
+- [x] Commit and push; CI green
 
 ## Phase 5a checklist (done)
 
