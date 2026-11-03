@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 3. Design system and homepage (3b written, waiting on checks)
-**Next step:** run the 3b checks below; then Phase 3 is done and Phase 4 (Blackjack) is next.
+**Current phase:** 4. Blackjack (not started)
+**Next step:** start Phase 4: server-side blackjack rounds, bets through the ledger.
 
 ## Roadmap
 
@@ -11,9 +11,9 @@ Where the project stands, so work can be picked up from any point.
 - [x] Phase 2: Database, accounts and ledger
   - [x] 2a: PostgreSQL + Prisma, ledger service, secure RNG, idempotency, concurrency tests
   - [x] 2b: Registration, login, logout, sessions, real balance in the header
-- [ ] **Phase 3: Design system and homepage**
+- [x] Phase 3: Design system and homepage
   - [x] 3a: Tokens, fonts, logo, buttons, ledger page, game cards, homepage, restyle of every page
-  - [ ] 3b: Loading and empty states, game-page shells, mobile review
+  - [x] 3b: Loading and empty states, game-page shells, mobile review
 - [ ] Phase 4: Blackjack (server-side round state)
 - [ ] Phase 5: Roulette
 - [ ] Phase 6: Slot engine + Classic Slots (with RTP simulation test)
@@ -22,7 +22,7 @@ Where the project stands, so work can be picked up from any point.
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 3b checklist
+## Phase 3b checklist (done)
 
 Code (written):
 
@@ -34,10 +34,10 @@ Code (written):
 
 Checks (on your machine):
 
-- [ ] Delete the unused placeholder: `git rm src/components/ui/page-placeholder.tsx`
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] Commit and push; CI green
-- [ ] Review game pages, login, sign-up and dashboard at phone width on the live site
+- [x] Delete the unused placeholder: `git rm src/components/ui/page-placeholder.tsx`
+- [x] `npm run format`, then `npm run check` passes
+- [x] Commit and push; CI green
+- [x] Reviewed game pages, sign-up and login at phone width on the live site; game pages now show the title and rules before the table on phones
 
 ## Phase 3a checklist (done)
 

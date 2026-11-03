@@ -28,19 +28,6 @@ export async function GameShell({ game, backHref = "/", backLabel = "All games" 
       </Link>
 
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:gap-14">
-        <section
-          aria-label={`${game.name} table`}
-          className="on-felt bg-felt text-paper ring-felt-deep relative overflow-hidden rounded-2xl px-6 pt-10 pb-8 ring-1 sm:px-10"
-        >
-          <GameArt slug={game.slug} className="mx-auto h-48 w-full max-w-md sm:h-64" />
-          <div className="bg-paper text-ink mx-auto mt-8 max-w-sm rounded-md px-5 py-4 text-center shadow-lg sm:-rotate-1">
-            <p className="font-display text-2xl">Table closed</p>
-            <p className="text-ink-soft mt-1 text-sm">
-              {game.name} opens in {game.opensIn} of the build.
-            </p>
-          </div>
-        </section>
-
         <aside className="space-y-8">
           <div>
             <h1 className="font-display text-5xl sm:text-6xl">{game.name}</h1>
@@ -74,6 +61,19 @@ export async function GameShell({ game, backHref = "/", backLabel = "All games" 
             </div>
           )}
         </aside>
+
+        <section
+          aria-label={`${game.name} table`}
+          className="on-felt bg-felt text-paper ring-felt-deep relative overflow-hidden rounded-2xl px-6 pt-10 pb-8 ring-1 sm:px-10 lg:order-first"
+        >
+          <GameArt slug={game.slug} className="mx-auto h-48 w-full max-w-md sm:h-64" />
+          <div className="bg-paper text-ink mx-auto mt-8 max-w-sm rounded-md px-5 py-4 text-center shadow-lg sm:-rotate-1">
+            <p className="font-display text-2xl">Table closed</p>
+            <p className="text-ink-soft mt-1 text-sm">
+              {game.name} opens in {game.opensIn} of the build.
+            </p>
+          </div>
+        </section>
       </div>
     </div>
   );
