@@ -100,6 +100,25 @@ Defined in `prisma/schema.prisma`.
 - **Components:** `Button` / `ButtonLink` (`primary`, `secondary`, `quiet`), `Logo` and `StampMark`, `GameCard` with line illustrations (`GameArt`).
 - **Accessibility floor:** visible focus outlines (ink on paper, brass on felt), skip link, reduced motion respected, colour never the only signal (negative amounts also carry a minus sign).
 
+## Blackjack (Phase 4)
+
+The rules engine lives in `src/server/games/blackjack/` and is pure: it takes an already shuffled shoe and the player's actions and returns new state, never touching the database, the clock or randomness. That makes every rule testable with rigged shoes, and lets the server replay a round exactly.
+
+**House rules**
+
+- 6 decks, shuffled fresh for every round with the secure RNG.
+- Dealer stands on all 17s, including soft 17.
+- Blackjack pays 3 to 2. The dealer checks for blackjack straight after the deal; if either side has it, the round ends there. No insurance, no surrender.
+- Double down on any first two cards, including after a split.
+- Split pairs (any two ten-value cards count as a pair) up to 4 hands. Split aces get one card each and can't be split again. 21 after a split pays 1 to 1, not 3 to 2.
+- Bets are whole credits from 1 to 500, so every payout is a whole number of minor units.
+
+**What the browser sees:** `toPublicView()` strips the remaining shoe and, until the round ends, the dealer's hole card. The full state never leaves the server.
+
+**Money flow:** doubling and splitting each need another stake equal to the hand's bet (`additionalStake()`); the server takes it through the ledger before applying the move. When the round settles, the total payout is credited in one ledger entry.
+
+**Tests:** hand values, every rule above with rigged shoes, immutability of state, the public view, and 3,000 randomly shuffled rounds checking that every card is accounted for and every payout matches its result.
+
 ## Decisions log
 
 - **2026-10-15: Slots as a hub page.** Navigation has a single "Slots" entry leading to `/slots`, which lists the three games. Keeps the header short and matches the shared-engine design.
@@ -108,3 +127,4 @@ Defined in `prisma/schema.prisma`.
 - **2026-10-16: Prisma 6.** Mature, typed queries, built-in migrations. Pinned to v6 to avoid the v7 configuration changes for now.
 - **2026-10-16: Hand-rolled session auth (coming in 2b).** Password hashing with `node:crypto` scrypt and database sessions. No third-party auth service, no native modules to compile on Windows, and every security decision is visible in the code.
 - **2026-11-03: Ledger-paper visual identity.** A light, accounting-inspired theme instead of the dark felt-and-gold casino default: it matches the name, makes the ledger the hero, and keeps felt for the game tables where it belongs.
+- **2026-11-03: Fresh shuffle every blackjack round.** Rounds are independent, card counting is pointless, and a round's full state is just its shoe and the player's actions, which keeps storage and replay simple.

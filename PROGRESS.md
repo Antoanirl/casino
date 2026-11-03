@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 4. Blackjack (not started)
-**Next step:** start Phase 4: server-side blackjack rounds, bets through the ledger.
+**Current phase:** 4. Blackjack (4a written and tested, waiting on checks)
+**Next step:** run the 4a checks below, then 4b (rounds stored on the server, bets and payouts through the ledger).
 
 ## Roadmap
 
@@ -14,13 +14,31 @@ Where the project stands, so work can be picked up from any point.
 - [x] Phase 3: Design system and homepage
   - [x] 3a: Tokens, fonts, logo, buttons, ledger page, game cards, homepage, restyle of every page
   - [x] 3b: Loading and empty states, game-page shells, mobile review
-- [ ] Phase 4: Blackjack (server-side round state)
+- [ ] **Phase 4: Blackjack**
+  - [ ] 4a: Rules engine (deal, hit, stand, double, split, dealer play, payouts) with tests
+  - [ ] 4b: Server: rounds in the database, bets and payouts through the ledger, actions API
+  - [ ] 4c: The table: cards, chips, buttons, animations
 - [ ] Phase 5: Roulette
 - [ ] Phase 6: Slot engine + Classic Slots (with RTP simulation test)
 - [ ] Phase 7: Gem Slots and Adventure Slots (configs on the same engine)
 - [ ] Phase 8: Dashboard and statistics
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
+
+## Phase 4a checklist
+
+Code (written):
+
+- [x] Cards, shoe and hand values (`src/server/games/blackjack/cards.ts`)
+- [x] Rules engine: deal, blackjack check, hit, stand, double, split (up to 4 hands), split aces, dealer stands on soft 17, payouts (`engine.ts`)
+- [x] Public view that hides the shoe and the hole card
+- [x] 33 tests including 3,000 random rounds (already run here: all pass)
+- [x] House rules documented in `docs/architecture.md`
+
+Checks (on your machine):
+
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] Commit and push; CI green
 
 ## Phase 3b checklist (done)
 
