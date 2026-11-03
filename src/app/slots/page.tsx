@@ -1,27 +1,23 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { GameCard } from "@/components/games/game-card";
 import { slotGames } from "@/lib/games";
 
 export const metadata: Metadata = { title: "Slots" };
 
 export default function SlotsHubPage() {
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Slots</h1>
-      <p className="max-w-prose text-zinc-300">
-        Three games running on one shared slot engine. Each game is a configuration of reels,
-        symbols and paytable.
-      </p>
-      <ul className="grid gap-4 sm:grid-cols-3">
+    <div className="space-y-10">
+      <div className="max-w-2xl">
+        <h1 className="font-display text-5xl sm:text-6xl">Slots</h1>
+        <p className="text-ink-soft mt-5 text-lg leading-relaxed">
+          Three machines on one engine. Each is a set of reels, symbols and a paytable, so they play
+          by exactly the same rules for bets and payouts.
+        </p>
+      </div>
+      <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {slotGames.map((game) => (
           <li key={game.slug}>
-            <Link
-              href={game.href}
-              className="bg-felt-800 hover:border-gold-500 block h-full rounded-lg border border-white/10 p-5 transition-colors"
-            >
-              <h2 className="text-lg font-semibold">{game.name}</h2>
-              <p className="mt-2 text-sm text-zinc-300">{game.description}</p>
-            </Link>
+            <GameCard game={game} size="small" />
           </li>
         ))}
       </ul>

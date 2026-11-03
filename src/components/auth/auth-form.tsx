@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import type { AuthFormState } from "@/app/actions/auth";
+import { buttonClass } from "@/components/ui/button";
 
 type Action = (state: AuthFormState, formData: FormData) => Promise<AuthFormState>;
 
@@ -12,7 +13,7 @@ interface AuthFormProps {
 }
 
 const inputClass =
-  "w-full rounded border border-white/15 bg-felt-950 px-3 py-2 text-zinc-100 placeholder:text-zinc-500 focus:border-gold-500 focus:outline-none aria-[invalid=true]:border-red-400";
+  "w-full rounded-md border border-rule bg-sheet px-3 py-2.5 text-ink placeholder:text-ink-soft/60 focus:border-ink aria-[invalid=true]:border-stamp";
 
 function Field({
   name,
@@ -34,7 +35,7 @@ function Field({
   const describedBy = error ? `${name}-error` : hint ? `${name}-hint` : undefined;
   return (
     <div className="space-y-1">
-      <label htmlFor={name} className="block text-sm font-medium text-zinc-200">
+      <label htmlFor={name} className="block text-sm font-medium">
         {label}
       </label>
       <input
@@ -49,11 +50,11 @@ function Field({
         className={inputClass}
       />
       {error ? (
-        <p id={`${name}-error`} className="text-sm text-red-300">
+        <p id={`${name}-error`} className="text-stamp text-sm">
           {error}
         </p>
       ) : hint ? (
-        <p id={`${name}-hint`} className="text-xs text-zinc-400">
+        <p id={`${name}-hint`} className="text-ink-soft text-xs">
           {hint}
         </p>
       ) : null}
@@ -71,7 +72,7 @@ export function AuthForm({ mode, action }: AuthFormProps) {
       {errors.form ? (
         <p
           role="alert"
-          className="rounded border border-red-400/40 bg-red-950/40 px-3 py-2 text-sm text-red-200"
+          className="border-stamp/40 bg-stamp/5 text-stamp rounded-md border px-3 py-2 text-sm"
         >
           {errors.form}
         </p>
@@ -110,23 +111,23 @@ export function AuthForm({ mode, action }: AuthFormProps) {
       <button
         type="submit"
         disabled={pending}
-        className="bg-gold-500 text-felt-950 hover:bg-gold-400 w-full rounded px-4 py-2 font-semibold disabled:cursor-wait disabled:opacity-60"
+        className={buttonClass("primary", "w-full disabled:cursor-wait")}
       >
         {pending ? "Please wait…" : isRegister ? "Create account" : "Log in"}
       </button>
 
-      <p className="text-center text-sm text-zinc-400">
+      <p className="text-ink-soft text-center text-sm">
         {isRegister ? (
           <>
             Already have an account?{" "}
-            <Link href="/login" className="text-gold-400 hover:underline">
+            <Link href="/login" className="text-ink underline underline-offset-2">
               Log in
             </Link>
           </>
         ) : (
           <>
             New here?{" "}
-            <Link href="/register" className="text-gold-400 hover:underline">
+            <Link href="/register" className="text-ink underline underline-offset-2">
               Create an account
             </Link>
           </>

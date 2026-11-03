@@ -1,28 +1,31 @@
-import Link from "next/link";
 import { NavLink } from "@/components/layout/nav-link";
 import { UserMenu } from "@/components/layout/user-menu";
+import { Logo } from "@/components/ui/logo";
 import { mainNav } from "@/lib/games";
-import { siteConfig } from "@/lib/site";
 
 export function SiteHeader() {
   return (
-    <header className="bg-felt-900 border-b border-white/10">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-3">
-        <Link href="/" className="text-gold-400 text-lg font-bold tracking-tight">
-          {siteConfig.name}
-        </Link>
+    <header className="border-rule bg-paper border-b">
+      <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto] items-center gap-x-6 gap-y-3 px-4 py-4 sm:px-6 md:grid-cols-[auto_1fr_auto]">
+        <Logo />
 
-        <nav aria-label="Main">
-          <ul className="flex flex-wrap items-center gap-1">
+        {/* On small screens the nav drops to its own row and scrolls sideways if needed. */}
+        <nav
+          aria-label="Main"
+          className="col-span-2 -mx-4 overflow-x-auto px-4 md:col-span-1 md:mx-0 md:px-0"
+        >
+          <ul className="flex items-center gap-1 md:justify-center">
             {mainNav.map((item) => (
-              <li key={item.href}>
+              <li key={item.href} className="shrink-0">
                 <NavLink href={item.href}>{item.label}</NavLink>
               </li>
             ))}
           </ul>
         </nav>
 
-        <UserMenu />
+        <div className="col-start-2 row-start-1 md:col-start-3">
+          <UserMenu />
+        </div>
       </div>
     </header>
   );

@@ -79,6 +79,27 @@ Defined in `prisma/schema.prisma`.
 - **Registration is one transaction:** user, wallet and the 1,000-credit signup ledger entry are created together or not at all.
 - Rate limiting for login and registration is planned for Phase 9.
 
+## Design system (Phase 3)
+
+**Direction: an honest bookkeeper's casino.** The project's strength is that every credit is accounted for, so the look comes from accounting ledgers instead of the usual neon-casino style.
+
+| Token                | Value                 | Used for                                         |
+| -------------------- | --------------------- | ------------------------------------------------ |
+| `paper`              | `#eef2e6`             | Page background (green-tinted ledger paper)      |
+| `paper-deep`         | `#e2e9d8`             | Footer, hover fills                              |
+| `sheet`              | `#f8faf3`             | Ledger pages, inputs, balance chip               |
+| `rule`               | `#b9c9b0`             | Ledger ruling, borders                           |
+| `ink`                | `#1d2b3a`             | Text, primary buttons                            |
+| `ink-soft`           | `#4a5a6a`             | Secondary text                                   |
+| `stamp`              | `#b3261e`             | Negative amounts, errors and the stamp logo only |
+| `felt` / `felt-deep` | `#0f4d3a` / `#0a3628` | Game surfaces only                               |
+| `brass`              | `#c8a04a`             | Illustrations and badges on felt only            |
+
+- **Type:** Libre Caslon Display for headlines (the face of old ledger books), Public Sans for text. Amounts use tabular figures (`.figures`) so columns line up. Both fonts are self-hosted by `next/font`.
+- **Signature element:** `LedgerPage` (`src/components/ledger/`), a ruled ledger page with a red margin rule and red negatives. Logged-out visitors see an example; signed-in players see their real latest entries.
+- **Components:** `Button` / `ButtonLink` (`primary`, `secondary`, `quiet`), `Logo` and `StampMark`, `GameCard` with line illustrations (`GameArt`).
+- **Accessibility floor:** visible focus outlines (ink on paper, brass on felt), skip link, reduced motion respected, colour never the only signal (negative amounts also carry a minus sign).
+
 ## Decisions log
 
 - **2026-10-15: Slots as a hub page.** Navigation has a single "Slots" entry leading to `/slots`, which lists the three games. Keeps the header short and matches the shared-engine design.
@@ -86,3 +107,4 @@ Defined in `prisma/schema.prisma`.
 - **2026-10-16: Neon for PostgreSQL.** Free tier, serverless, connects to Vercel directly. The app uses the pooled connection (`DATABASE_URL`); migrations use the direct one (`DATABASE_URL_UNPOOLED`).
 - **2026-10-16: Prisma 6.** Mature, typed queries, built-in migrations. Pinned to v6 to avoid the v7 configuration changes for now.
 - **2026-10-16: Hand-rolled session auth (coming in 2b).** Password hashing with `node:crypto` scrypt and database sessions. No third-party auth service, no native modules to compile on Windows, and every security decision is visible in the code.
+- **2026-11-03: Ledger-paper visual identity.** A light, accounting-inspired theme instead of the dark felt-and-gold casino default: it matches the name, makes the ledger the hero, and keeps felt for the game tables where it belongs.

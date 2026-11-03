@@ -10,8 +10,8 @@ export default async function LoginPage() {
   if (await getCurrentUser()) redirect("/");
 
   return (
-    <section className="mx-auto max-w-sm space-y-6">
-      <h1 className="text-3xl font-bold">Log in</h1>
+    <section className="mx-auto max-w-sm space-y-8 py-4">
+      <h1 className="font-display text-5xl">Log in</h1>
       <AuthForm mode="login" action={loginAction} />
     </section>
   );

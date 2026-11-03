@@ -2,16 +2,18 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 2. Database, accounts and ledger (2b written, waiting on checks)
-**Next step:** run the 2b checks below; when they pass, Phase 2 is done and Phase 3 (design system and homepage) is next.
+**Current phase:** 3. Design system and homepage (3a written, waiting on checks)
+**Next step:** run the 3a checks below, then 3b (loading and empty states, game-page shells, mobile review).
 
 ## Roadmap
 
 - [x] Phase 1: Foundation + CI/deploy (live on Vercel, CI green)
-- [ ] **Phase 2: Database, accounts and ledger**
+- [x] Phase 2: Database, accounts and ledger
   - [x] 2a: PostgreSQL + Prisma, ledger service, secure RNG, idempotency, concurrency tests
-  - [ ] 2b: Registration, login, logout, sessions, real balance in the header
-- [ ] Phase 3: Design system and homepage
+  - [x] 2b: Registration, login, logout, sessions, real balance in the header
+- [ ] **Phase 3: Design system and homepage**
+  - [ ] 3a: Tokens, fonts, logo, buttons, ledger page, game cards, homepage, restyle of every page
+  - [ ] 3b: Loading and empty states, game-page shells, mobile review
 - [ ] Phase 4: Blackjack (server-side round state)
 - [ ] Phase 5: Roulette
 - [ ] Phase 6: Slot engine + Classic Slots (with RTP simulation test)
@@ -20,7 +22,26 @@ Where the project stands, so work can be picked up from any point.
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 2b checklist
+## Phase 3a checklist
+
+Code (written):
+
+- [x] Design tokens in `src/app/globals.css` (ledger paper, ink, stamp red, felt, brass)
+- [x] Fonts: Libre Caslon Display + Public Sans via `next/font`
+- [x] Stamp logo, `Button`/`ButtonLink`, `GameCard` with line illustrations
+- [x] `LedgerPage` component and display helpers (`src/lib/ledger-display.ts`) with unit tests
+- [x] Homepage: ledger hero (your real entries when signed in), the tables, house rules
+- [x] Header with responsive nav, footer with source link
+- [x] Restyled: auth forms, dashboard (now shows your latest 20 entries), slots hub, placeholders, error and 404 pages
+
+Checks (on your machine):
+
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] `npm run dev`: homepage logged out (example ledger) and logged in (your entries)
+- [ ] Header and homepage look right on a narrow window (phone width)
+- [ ] Commit and push; CI green; live site updated
+
+## Phase 2b checklist (done)
 
 Code (written):
 
@@ -38,12 +59,12 @@ Code (written):
 
 Checks (on your machine):
 
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] `npm run dev`: sign up, see 1,000 credits in the header, log out, log back in
-- [ ] Wrong password shows "Invalid email or password"
-- [ ] `/dashboard` while logged out sends you to the login page
-- [ ] Commit and push; CI green
-- [ ] Same flow works on the live site
+- [x] `npm run format`, then `npm run check` passes
+- [x] `npm run dev`: sign up, see 1,000 credits in the header, log out, log back in
+- [x] Wrong password shows "Invalid email or password"
+- [x] `/dashboard` while logged out sends you to the login page
+- [x] Commit and push; CI green
+- [x] Same flow works on the live site
 
 ## Phase 2a checklist (done)
 
@@ -76,6 +97,6 @@ Next.js 16 + TypeScript (strict), Tailwind v4, ESLint + Prettier, validated env,
 
 ## Notes
 
-- Brand name "Lucky Ledger" is a working title; change it in `src/lib/site.ts` (and the README) during Phase 3.
+- Brand name "Lucky Ledger" is now part of the design (stamp logo, ledger theme). It is set in `src/lib/site.ts`.
 - Slots navigation decision: one "Slots" hub page, not three nav entries.
 - Local development and production currently share one Neon database. Later improvement: a separate Neon branch for development.

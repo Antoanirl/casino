@@ -1,19 +1,54 @@
 @import "tailwindcss";
 
-/* Placeholder tokens. The real brand palette and type scale arrive in Phase 3. */
+/*
+ * Design tokens. Direction: an honest bookkeeper's casino.
+ * Paper and ink come from accounting ledgers; felt and brass are reserved for game surfaces.
+ * Red ("stamp") follows the accounting convention: negative amounts and the stamp logo only.
+ */
 @theme {
-  --color-felt-950: #04140d;
-  --color-felt-900: #082419;
-  --color-felt-800: #0d3524;
-  --color-gold-400: #e6c068;
-  --color-gold-500: #d4a64a;
-  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --color-paper: #eef2e6;
+  --color-paper-deep: #e2e9d8;
+  --color-sheet: #f8faf3;
+  --color-rule: #b9c9b0;
+  --color-ink: #1d2b3a;
+  --color-ink-soft: #4a5a6a;
+  --color-stamp: #b3261e;
+  --color-felt: #0f4d3a;
+  --color-felt-deep: #0a3628;
+  --color-brass: #c8a04a;
+
+  --font-display: var(--font-caslon), "Libre Caslon Display", Georgia, serif;
+  --font-sans: var(--font-public-sans), "Public Sans", system-ui, sans-serif;
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  @apply bg-felt-950 text-zinc-100 antialiased;
+  @apply bg-paper text-ink antialiased;
+}
+
+/* Amounts and balances always use tabular figures so columns line up. */
+.figures {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+/* On felt, an ink outline would be invisible. */
+.on-felt :focus-visible {
+  outline-color: var(--color-brass);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -15,18 +15,20 @@ export function PagePlaceholder({
   description,
   phase,
   backHref = "/",
-  backLabel = "Back to lobby",
+  backLabel = "Back to the lobby",
 }: PagePlaceholderProps) {
   return (
-    <section className="space-y-4">
-      <p className="text-gold-400 text-xs font-semibold tracking-widest uppercase">
-        Coming in {phase}
+    <section className="max-w-2xl">
+      <h1 className="font-display text-5xl sm:text-6xl">{title}</h1>
+      <p className="text-ink-soft mt-5 text-lg leading-relaxed">{description}</p>
+      <p className="border-rule bg-sheet mt-6 inline-block rounded-md border px-3 py-1.5 text-sm">
+        This table opens in {phase} of the build.
       </p>
-      <h1 className="text-3xl font-bold">{title}</h1>
-      <p className="max-w-prose text-zinc-300">{description}</p>
-      <Link href={backHref} className="text-gold-400 inline-block text-sm hover:underline">
-        ← {backLabel}
-      </Link>
+      <p className="mt-8">
+        <Link href={backHref} className="hover:text-ink-soft text-sm underline underline-offset-4">
+          {backLabel}
+        </Link>
+      </p>
     </section>
   );
 }

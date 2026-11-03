@@ -1,30 +1,35 @@
 import type { Metadata } from "next";
-import { formatCredits } from "@/lib/money";
+import { LedgerPage } from "@/components/ledger/ledger-page";
 import { requireUser } from "@/server/auth/current-user";
 import { getDb } from "@/server/db";
-import { getBalance } from "@/server/ledger";
 
-export const metadata: Metadata = { title: "Dashboard" };
+export const metadata: Metadata = { title: "Your ledger" };
+
+const PAGE_SIZE = 20;
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const balance = await getBalance(getDb(), user.id);
+  const latest = await getDb().ledgerEntry.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: "desc" },
+    take: PAGE_SIZE,
+    select: { id: true, type: true, amount: true, balanceAfter: true, game: true, createdAt: true },
+  });
 
   return (
-    <section className="space-y-6">
-      <div className="space-y-1">
-        <p className="text-sm text-zinc-400">Signed in as</p>
-        <h1 className="text-3xl font-bold">{user.username}</h1>
+    <div className="grid gap-12 lg:grid-cols-[minmax(0,20rem)_1fr]">
+      <div>
+        <h1 className="font-display text-5xl">Your ledger</h1>
+        <p className="text-ink-soft mt-5">
+          Every credit that has moved in or out of your account, newest at the bottom like a
+          bookkeeper writes it. Statistics, filters and the full history arrive in Phase 8.
+        </p>
       </div>
-
-      <div className="bg-felt-800 inline-block rounded-lg border border-white/10 px-6 py-4">
-        <p className="text-xs tracking-widest text-zinc-400 uppercase">Balance</p>
-        <p className="text-gold-400 text-3xl font-bold">{formatCredits(balance)} credits</p>
-      </div>
-
-      <p className="max-w-prose text-zinc-300">
-        Game history, wins and losses, and the full transaction list arrive in Phase 8.
-      </p>
-    </section>
+      <LedgerPage
+        title={`${user.username}'s ledger`}
+        rows={latest.reverse()}
+        caption={`Showing your latest ${Math.min(latest.length, PAGE_SIZE)} entries.`}
+      />
+    </div>
   );
 }

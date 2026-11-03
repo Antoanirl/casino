@@ -1,13 +1,15 @@
-import Link from "next/link";
+import { ButtonLink } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <section className="space-y-4">
-      <h1 className="text-3xl font-bold">Page not found</h1>
-      <p className="text-zinc-300">That page doesn&apos;t exist.</p>
-      <Link href="/" className="text-gold-400 hover:underline">
-        ← Back to lobby
-      </Link>
+    <section className="max-w-xl">
+      <h1 className="font-display text-5xl">No such page</h1>
+      <p className="text-ink-soft mt-5 text-lg">
+        The address may be mistyped, or the page has moved. The games are all listed in the lobby.
+      </p>
+      <ButtonLink href="/" className="mt-8">
+        Go to the lobby
+      </ButtonLink>
     </section>
   );
 }

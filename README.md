@@ -4,7 +4,7 @@ A play-money online casino built as a portfolio project: Blackjack, European Rou
 
 > **Virtual credits only.** No real money can be deposited, wagered, won or withdrawn, and credits cannot be bought.
 
-_Status: Phase 2 (database, accounts and ledger). See [PROGRESS.md](./PROGRESS.md) for the roadmap and current state._
+_Status: Phase 3 (design system and homepage). See [PROGRESS.md](./PROGRESS.md) for the roadmap and current state._
 
 ## Tech stack
 
