@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 3. Design system and homepage (3a written, waiting on checks)
-**Next step:** run the 3a checks below, then 3b (loading and empty states, game-page shells, mobile review).
+**Current phase:** 3. Design system and homepage (3a done, 3b next)
+**Next step:** 3b: loading and empty states, game-page shells, mobile review.
 
 ## Roadmap
 
@@ -12,7 +12,7 @@ Where the project stands, so work can be picked up from any point.
   - [x] 2a: PostgreSQL + Prisma, ledger service, secure RNG, idempotency, concurrency tests
   - [x] 2b: Registration, login, logout, sessions, real balance in the header
 - [ ] **Phase 3: Design system and homepage**
-  - [ ] 3a: Tokens, fonts, logo, buttons, ledger page, game cards, homepage, restyle of every page
+  - [x] 3a: Tokens, fonts, logo, buttons, ledger page, game cards, homepage, restyle of every page
   - [ ] 3b: Loading and empty states, game-page shells, mobile review
 - [ ] Phase 4: Blackjack (server-side round state)
 - [ ] Phase 5: Roulette
@@ -22,7 +22,7 @@ Where the project stands, so work can be picked up from any point.
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 3a checklist
+## Phase 3a checklist (done)
 
 Code (written):
 
@@ -36,10 +36,12 @@ Code (written):
 
 Checks (on your machine):
 
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] `npm run dev`: homepage logged out (example ledger) and logged in (your entries)
-- [ ] Header and homepage look right on a narrow window (phone width)
-- [ ] Commit and push; CI green; live site updated
+- [x] `npm run format`, then `npm run check` passes
+- [x] `npm run dev`: homepage logged out (example ledger) and logged in (your entries)
+- [x] Header and homepage look right on a narrow window (phone width)
+- [x] Commit and push; CI green; live site updated
+- [x] Reviewed live at phone and desktop width; margin rule now stops at the ledger rows, footer gap trimmed
+- [x] Vercel deployment protection turned off so the live site is public
 
 ## Phase 2b checklist (done)
 
