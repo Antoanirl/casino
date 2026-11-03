@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 4. Blackjack (4c written, waiting on checks)
-**Next step:** run the 4c checks below and play a few rounds; then Phase 4 is done and Phase 5 (Roulette) is next.
+**Current phase:** 5. Roulette (5a written, waiting on checks)
+**Next step:** run the 5a checks below (includes a database migration), then 5b (the roulette table).
 
 ## Roadmap
 
@@ -14,32 +14,51 @@ Where the project stands, so work can be picked up from any point.
 - [x] Phase 3: Design system and homepage
   - [x] 3a: Tokens, fonts, logo, buttons, ledger page, game cards, homepage, restyle of every page
   - [x] 3b: Loading and empty states, game-page shells, mobile review
-- [ ] **Phase 4: Blackjack**
+- [x] Phase 4: Blackjack (playable on the live site)
   - [x] 4a: Rules engine (deal, hit, stand, double, split, dealer play, payouts) with tests
   - [x] 4b: Server: rounds in the database, bets and payouts through the ledger, actions API
-  - [ ] 4c: The table: cards, chips, buttons, animations
-- [ ] Phase 5: Roulette
+  - [x] 4c: The table: cards, chips, buttons, animations
+- [ ] **Phase 5: Roulette**
+  - [ ] 5a: Rules engine, spins in the database through the ledger, server actions, tests
+  - [ ] 5b: The table: betting layout, wheel, results
 - [ ] Phase 6: Slot engine + Classic Slots (with RTP simulation test)
 - [ ] Phase 7: Gem Slots and Adventure Slots (configs on the same engine)
 - [ ] Phase 8: Dashboard and statistics
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 4c checklist
+## Phase 5a checklist
+
+Code (written):
+
+- [x] Roulette engine: pockets and colours, wheel order, bet spots, payouts, table limits (`src/server/games/roulette/engine.ts`)
+- [x] 19 engine tests, including an exact 1/37 house edge for every bet type (already run here: all pass)
+- [x] `RouletteSpin` table and spin service: stake, pocket and payout in one transaction; repeated spins return the original (`service.ts`)
+- [x] Server actions for the table: spin, recent results (`src/app/actions/roulette.ts`)
+- [x] 7 database tests: straight win, all-lose spin, repeated and simultaneous spins, unaffordable stake, limits, recent spins
+
+Checks (on your machine):
+
+- [ ] `npx prisma migrate dev --name roulette_spins`
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] Commit and push (including the new migration); CI green, including the database tests
+
+## Phase 4c checklist (done)
 
 Code (written):
 
 - [x] Playing cards (paper face, red hearts and diamonds, brass-patterned back) with a deal-in animation (`src/components/blackjack/playing-card.tsx`)
 - [x] Blackjack table: chips and deal, only the allowed moves, split hands with the active one highlighted, results per hand and a round summary (`blackjack-table.tsx`)
 - [x] Header balance refreshes after every bet and payout; an unfinished round comes back after a reload
+- [x] Play-test fixes: moves sit on the table under the cards, clicks are ignored briefly after the table changes (no double-click moves), notes explain split aces and automatic stands
 - [x] Blackjack marked playable; the logged-out page says the table is open and offers log in or sign up
 
 Checks (on your machine):
 
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] `npm run dev`: play several rounds; try double, a split if you get a pair, and reload mid-hand
-- [ ] Commit and push; CI green
-- [ ] Play-test on the live site at phone and desktop width
+- [x] `npm run format`, then `npm run check` passes
+- [x] `npm run dev`: play several rounds; try double, a split if you get a pair, and reload mid-hand
+- [x] Commit and push; CI green
+- [x] Play-test on the live site at phone and desktop width
 
 ## Phase 4b checklist (done)
 
@@ -168,3 +187,4 @@ Next.js 16 + TypeScript (strict), Tailwind v4, ESLint + Prettier, validated env,
 - Brand name "Lucky Ledger" is now part of the design (stamp logo, ledger theme). It is set in `src/lib/site.ts`.
 - Slots navigation decision: one "Slots" hub page, not three nav entries.
 - Local development and production currently share one Neon database. Later improvement: a separate Neon branch for development.
+- A QA test account (`qa_7cd7d6`) was created on the shared database while play-testing blackjack.

@@ -30,6 +30,7 @@ model User {
   sessions        Session[]
   ledgerEntries   LedgerEntry[]
   blackjackRounds BlackjackRound[]
+  rouletteSpins   RouletteSpin[]
 }
 
 /// Login session. The browser cookie holds a random token; only its SHA-256
@@ -121,4 +122,25 @@ model BlackjackRound {
 
   @@unique([userId, dealKey])
   @@index([userId, status])
+}
+
+/// One roulette spin: the bets, where the ball landed and what was paid. Settled in the same
+/// transaction that takes the stake, so a spin row always has matching ledger entries.
+model RouletteSpin {
+  id          String   @id @default(cuid())
+  userId      String
+  /// Key sent with the spin request: repeating it returns this spin instead of a new one.
+  spinKey     String
+  /// The validated, merged bets (engine Bet[]).
+  bets        Json
+  pocket      Int
+  /// Minor units.
+  totalStake  Int
+  totalPayout Int
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, spinKey])
+  @@index([userId, createdAt])
 }

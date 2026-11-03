@@ -128,6 +128,16 @@ The rules engine lives in `src/server/games/blackjack/` and is pure: it takes an
 - **Ledger keys:** `blackjack:<round>:deal`, `blackjack:<round>:v<version>:<move>`, `blackjack:<round>:payout`, so no step of a round can be charged or paid twice.
 - **Server actions** (`src/app/actions/blackjack.ts`): `dealBlackjack`, `playBlackjack`, `currentBlackjackRound`. They validate input with Zod, accept bets in whole credits, and turn known errors into messages for the table.
 
+## Roulette (Phase 5)
+
+Rules engine in `src/server/games/roulette/engine.ts`, pure like blackjack's: the server draws the pocket with the secure RNG (`randomInt(0, 37)`) and passes it in.
+
+**Table:** European, single zero (37 pockets). Straight number pays 35 to 1; red/black and odd/even pay 1 to 1; dozens and columns pay 2 to 1. Every bet except a straight-up 0 loses on zero. Each spot takes 1 to 500 whole credits; a spin carries at most 1,000 credits. Chips on the same spot are merged.
+
+**Spin = one transaction** (`service.ts`): validate bets, draw the pocket, save a `RouletteSpin` row, debit the total stake (`BET`), credit any winnings (`PAYOUT`). If the stake can't be covered, the whole spin rolls back and no row is saved. `(userId, spinKey)` is unique: a repeated request gets the original spin back and can't re-roll the pocket.
+
+**Tests:** every pocket against every bet type, including an exact check that each bet type returns 36/37 of its stake over the 37 pockets (house edge exactly 1/37); wheel order and colours; table limits; and database tests for payouts, losses, repeated and simultaneous spins, and unaffordable stakes.
+
 ## Decisions log
 
 - **2026-10-15: Slots as a hub page.** Navigation has a single "Slots" entry leading to `/slots`, which lists the three games. Keeps the header short and matches the shared-engine design.
