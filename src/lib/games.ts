@@ -45,7 +45,7 @@ export const games: readonly Game[] = [
     category: "table",
     href: "/roulette",
     description: "European single-zero roulette with inside and outside bets.",
-    status: "coming-soon",
+    status: "playable",
     opensIn: "Phase 5",
     rules: [
       { term: "Wheel", detail: "European single zero: 37 pockets, numbered 0 to 36." },

@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 5. Roulette (5a written, waiting on checks)
-**Next step:** run the 5a checks below (includes a database migration), then 5b (the roulette table).
+**Current phase:** 5. Roulette (5b written, waiting on checks)
+**Next step:** run the 5b checks below and play a few spins; then Phase 5 is done and Phase 6 (slot engine + Classic Slots) is next.
 
 ## Roadmap
 
@@ -19,7 +19,7 @@ Where the project stands, so work can be picked up from any point.
   - [x] 4b: Server: rounds in the database, bets and payouts through the ledger, actions API
   - [x] 4c: The table: cards, chips, buttons, animations
 - [ ] **Phase 5: Roulette**
-  - [ ] 5a: Rules engine, spins in the database through the ledger, server actions, tests
+  - [x] 5a: Rules engine, spins in the database through the ledger, server actions, tests
   - [ ] 5b: The table: betting layout, wheel, results
 - [ ] Phase 6: Slot engine + Classic Slots (with RTP simulation test)
 - [ ] Phase 7: Gem Slots and Adventure Slots (configs on the same engine)
@@ -27,7 +27,22 @@ Where the project stands, so work can be picked up from any point.
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 5a checklist
+## Phase 5b checklist
+
+Code (written):
+
+- [x] Roulette wheel: SVG in European order, spins to the drawn pocket, no spin with reduced motion (`src/components/roulette/roulette-wheel.tsx`)
+- [x] Roulette table: chip values, number grid with dozens, columns and outside bets, undo and clear, spin, winning spots highlighted, last 12 numbers (`roulette-table.tsx`)
+- [x] Phone layout: the table turned upright in three columns
+- [x] Roulette marked playable
+
+Checks (on your machine):
+
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] `npm run dev`: place several bets, spin, try undo and clear, and a narrow window
+- [ ] Commit and push; CI green
+
+## Phase 5a checklist (done)
 
 Code (written):
 
@@ -39,9 +54,9 @@ Code (written):
 
 Checks (on your machine):
 
-- [ ] `npx prisma migrate dev --name roulette_spins`
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] Commit and push (including the new migration); CI green, including the database tests
+- [x] `npx prisma migrate dev --name roulette_spins`
+- [x] `npm run format`, then `npm run check` passes
+- [x] Commit and push (including the new migration); CI green, including the database tests
 
 ## Phase 4c checklist (done)
 
