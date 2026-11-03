@@ -42,6 +42,7 @@ export const classicSlots: SlotConfig = {
     [0, 1, 2], // diagonal down
     [2, 1, 0], // diagonal up
   ],
+  paylineNames: ["middle row", "top row", "bottom row", "diagonal down", "diagonal up"],
   linePays: {
     seven: { 3: 10_000 },
     bar: { 3: 2_500 },

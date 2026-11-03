@@ -25,6 +25,8 @@ export interface SlotConfig {
   reels: readonly (readonly string[])[];
   /** Each payline gives the row it uses on every reel, left to right. */
   paylines: readonly (readonly number[])[];
+  /** Optional plain-language names for the paylines, e.g. "top row". */
+  paylineNames?: readonly string[];
   /** symbol id -> count of matching symbols from the left -> pays (hundredths of total bet). */
   linePays: Readonly<Record<string, Readonly<Partial<Record<number, number>>>>>;
   /** scatter count anywhere on screen -> pays (hundredths of total bet). */

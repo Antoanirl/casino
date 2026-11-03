@@ -63,7 +63,7 @@ export const games: readonly Game[] = [
     category: "slots",
     href: "/slots/classic",
     description: "Three reels of fruit, bars and sevens.",
-    status: "coming-soon",
+    status: "playable",
     opensIn: "Phase 6",
     rules: [
       { term: "Reels", detail: "Three reels of fruit, bars and sevens." },
@@ -73,7 +73,8 @@ export const games: readonly Game[] = [
       },
       {
         term: "Return",
-        detail: "The payout rate is checked by simulating millions of spins in the test suite.",
+        detail:
+          "95.70% of all bets come back over time, calculated exactly and checked with a million-spin simulation.",
       },
     ],
   },

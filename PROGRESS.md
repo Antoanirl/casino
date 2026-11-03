@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 6. Slot engine + Classic Slots (6a written, waiting on checks)
-**Next step:** run the 6a checks below (includes a database migration), then 6b (the reels on screen).
+**Current phase:** 6. Slot engine + Classic Slots (6b written, waiting on checks)
+**Next step:** run the 6b checks below and play some spins; then Phase 6 is done and Phase 7 (Gem and Adventure Slots) is next.
 
 ## Roadmap
 
@@ -22,14 +22,29 @@ Where the project stands, so work can be picked up from any point.
   - [x] 5a: Rules engine, spins in the database through the ledger, server actions, tests
   - [x] 5b: The table: betting layout, wheel, results
 - [ ] **Phase 6: Slot engine + Classic Slots**
-  - [ ] 6a: Config-driven engine, exact RTP, Classic Slots, 1M-spin simulation, spins on the server
+  - [x] 6a: Config-driven engine, exact RTP, Classic Slots, 1M-spin simulation, spins on the server
   - [ ] 6b: The machine: reels, bet picker, paytable, wins highlighted
 - [ ] Phase 7: Gem Slots and Adventure Slots (configs on the same engine)
 - [ ] Phase 8: Dashboard and statistics
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 6a checklist
+## Phase 6b checklist
+
+Code (written):
+
+- [x] Slot symbols drawn as icons (`src/components/slots/symbol-art.tsx`), reel spin and stop animations
+- [x] Generic slot machine driven by the config: reels stop left to right on the server's stops, winning lines drawn, wins explained, bet picker (`slot-machine.tsx`)
+- [x] Paytable built from the config, with the exact return to player and top win (`paytable.tsx`)
+- [x] Classic Slots page for players; Classic marked playable; payline names in the config
+
+Checks (on your machine):
+
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] `npm run dev`: spin a few times at different bets; try a narrow window
+- [ ] Commit and push; CI green
+
+## Phase 6a checklist (done)
 
 Code (written):
 
@@ -42,9 +57,9 @@ Code (written):
 
 Checks (on your machine):
 
-- [ ] `npx prisma migrate dev --name slot_spins`
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] Commit and push (including the new migration); CI green, including the database tests
+- [x] `npx prisma migrate dev --name slot_spins`
+- [x] `npm run format`, then `npm run check` passes
+- [x] Commit and push (including the new migration); CI green, including the database tests
 
 ## Phase 5b checklist (done)
 

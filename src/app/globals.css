@@ -34,6 +34,28 @@
       transform: none;
     }
   }
+
+  /* Slot reels: a blurred strip scrolling past, then a small settle when a reel stops. */
+  --animate-reel-spin: reel-spin 420ms linear infinite;
+  --animate-reel-stop: reel-stop 220ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+
+  @keyframes reel-spin {
+    from {
+      transform: translateY(-50%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes reel-stop {
+    from {
+      transform: translateY(-14%);
+    }
+    to {
+      transform: none;
+    }
+  }
 }
 
 html {
