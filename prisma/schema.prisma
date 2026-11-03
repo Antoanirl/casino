@@ -26,9 +26,10 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  wallet        Wallet?
-  sessions      Session[]
-  ledgerEntries LedgerEntry[]
+  wallet          Wallet?
+  sessions        Session[]
+  ledgerEntries   LedgerEntry[]
+  blackjackRounds BlackjackRound[]
 }
 
 /// Login session. The browser cookie holds a random token; only its SHA-256
@@ -88,4 +89,36 @@ model LedgerEntry {
   @@unique([userId, idempotencyKey])
   @@index([userId, createdAt])
   @@index([reference])
+}
+
+enum RoundStatus {
+  ACTIVE
+  SETTLED
+}
+
+/// One blackjack round. `state` holds the engine's full RoundState, including the
+/// shuffled shoe, so it must never be sent to the browser as-is (see toPublicView).
+/// Money for the round moves only through LedgerEntry rows that reference this id.
+model BlackjackRound {
+  id          String      @id @default(cuid())
+  userId      String
+  status      RoundStatus @default(ACTIVE)
+  state       Json
+  /// Increases with every move. A move must name the version it was made from,
+  /// so a repeated or out-of-date request is rejected instead of acting twice.
+  version     Int         @default(0)
+  /// Key sent with the deal request: repeating it returns this round instead of a new one.
+  dealKey     String
+  /// Minor units: everything staked (initial bet, doubles, splits).
+  totalStake  Int
+  /// Minor units returned to the player; set when the round settles.
+  totalPayout Int?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  settledAt   DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dealKey])
+  @@index([userId, status])
 }

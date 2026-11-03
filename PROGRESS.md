@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 4. Blackjack (4a written and tested, waiting on checks)
-**Next step:** run the 4a checks below, then 4b (rounds stored on the server, bets and payouts through the ledger).
+**Current phase:** 4. Blackjack (4b written, waiting on checks)
+**Next step:** run the 4b checks below (includes a database migration), then 4c (the table).
 
 ## Roadmap
 
@@ -15,7 +15,7 @@ Where the project stands, so work can be picked up from any point.
   - [x] 3a: Tokens, fonts, logo, buttons, ledger page, game cards, homepage, restyle of every page
   - [x] 3b: Loading and empty states, game-page shells, mobile review
 - [ ] **Phase 4: Blackjack**
-  - [ ] 4a: Rules engine (deal, hit, stand, double, split, dealer play, payouts) with tests
+  - [x] 4a: Rules engine (deal, hit, stand, double, split, dealer play, payouts) with tests
   - [ ] 4b: Server: rounds in the database, bets and payouts through the ledger, actions API
   - [ ] 4c: The table: cards, chips, buttons, animations
 - [ ] Phase 5: Roulette
@@ -25,7 +25,22 @@ Where the project stands, so work can be picked up from any point.
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 4a checklist
+## Phase 4b checklist
+
+Code (written):
+
+- [x] `BlackjackRound` table: engine state, version, deal key, stake and payout (`prisma/schema.prisma`)
+- [x] Round service: wallet lock per player, bet and deal in one transaction, version check on every move, payout at settlement (`src/server/games/blackjack/service.ts`)
+- [x] Server actions for the table: deal, play a move, resume the current round (`src/app/actions/blackjack.ts`)
+- [x] Database tests: deal and payout, blackjack at the deal, push refund, double, repeated and simultaneous deals, double clicks, unaffordable moves, other players' rounds
+
+Checks (on your machine):
+
+- [ ] `npx prisma migrate dev --name blackjack_rounds` (creates the new table in Neon and a migration file)
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] Commit and push (including the new `prisma/migrations` folder); CI green, including the database tests
+
+## Phase 4a checklist (done)
 
 Code (written):
 
@@ -37,8 +52,8 @@ Code (written):
 
 Checks (on your machine):
 
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] Commit and push; CI green
+- [x] `npm run format`, then `npm run check` passes
+- [x] Commit and push; CI green
 
 ## Phase 3b checklist (done)
 

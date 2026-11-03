@@ -119,6 +119,15 @@ The rules engine lives in `src/server/games/blackjack/` and is pure: it takes an
 
 **Tests:** hand values, every rule above with rigged shoes, immutability of state, the public view, and 3,000 randomly shuffled rounds checking that every card is accounted for and every payout matches its result.
 
+**Rounds on the server (4b):** `src/server/games/blackjack/service.ts` stores each round in the `BlackjackRound` table (full engine state as JSON, a `version` number, the deal key, and stake/payout totals).
+
+- Every blackjack request runs in one transaction that first locks the player's wallet row (`SELECT ... FOR UPDATE`). Requests from the same player can't interleave; the second waits and then sees the first one's result.
+- **Deal:** the bet is debited through the ledger in the same transaction that creates the round. If the player can't cover it, nothing is created. A repeated deal key returns the round it already created. Only one unfinished round per player.
+- **Moves:** each move names the round `version` it was made from. A double click sends the same version twice; the second is rejected with the current round (`StaleRoundError`) instead of drawing another card. Double and split debit their extra stake before the card is drawn.
+- **Settlement:** when a round ends, its payout is credited in the same transaction (`PAYOUT`, or `REFUND` when exactly the stake comes back). Losses write no entry: the bet entry already recorded them.
+- **Ledger keys:** `blackjack:<round>:deal`, `blackjack:<round>:v<version>:<move>`, `blackjack:<round>:payout`, so no step of a round can be charged or paid twice.
+- **Server actions** (`src/app/actions/blackjack.ts`): `dealBlackjack`, `playBlackjack`, `currentBlackjackRound`. They validate input with Zod, accept bets in whole credits, and turn known errors into messages for the table.
+
 ## Decisions log
 
 - **2026-10-15: Slots as a hub page.** Navigation has a single "Slots" entry leading to `/slots`, which lists the three games. Keeps the header short and matches the shared-engine design.
