@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 4. Blackjack (4b written, waiting on checks)
-**Next step:** run the 4b checks below (includes a database migration), then 4c (the table).
+**Current phase:** 4. Blackjack (4c written, waiting on checks)
+**Next step:** run the 4c checks below and play a few rounds; then Phase 4 is done and Phase 5 (Roulette) is next.
 
 ## Roadmap
 
@@ -16,7 +16,7 @@ Where the project stands, so work can be picked up from any point.
   - [x] 3b: Loading and empty states, game-page shells, mobile review
 - [ ] **Phase 4: Blackjack**
   - [x] 4a: Rules engine (deal, hit, stand, double, split, dealer play, payouts) with tests
-  - [ ] 4b: Server: rounds in the database, bets and payouts through the ledger, actions API
+  - [x] 4b: Server: rounds in the database, bets and payouts through the ledger, actions API
   - [ ] 4c: The table: cards, chips, buttons, animations
 - [ ] Phase 5: Roulette
 - [ ] Phase 6: Slot engine + Classic Slots (with RTP simulation test)
@@ -25,7 +25,23 @@ Where the project stands, so work can be picked up from any point.
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 4b checklist
+## Phase 4c checklist
+
+Code (written):
+
+- [x] Playing cards (paper face, red hearts and diamonds, brass-patterned back) with a deal-in animation (`src/components/blackjack/playing-card.tsx`)
+- [x] Blackjack table: chips and deal, only the allowed moves, split hands with the active one highlighted, results per hand and a round summary (`blackjack-table.tsx`)
+- [x] Header balance refreshes after every bet and payout; an unfinished round comes back after a reload
+- [x] Blackjack marked playable; the logged-out page says the table is open and offers log in or sign up
+
+Checks (on your machine):
+
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] `npm run dev`: play several rounds; try double, a split if you get a pair, and reload mid-hand
+- [ ] Commit and push; CI green
+- [ ] Play-test on the live site at phone and desktop width
+
+## Phase 4b checklist (done)
 
 Code (written):
 
@@ -36,9 +52,9 @@ Code (written):
 
 Checks (on your machine):
 
-- [ ] `npx prisma migrate dev --name blackjack_rounds` (creates the new table in Neon and a migration file)
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] Commit and push (including the new `prisma/migrations` folder); CI green, including the database tests
+- [x] `npx prisma migrate dev --name blackjack_rounds` (creates the new table in Neon and a migration file)
+- [x] `npm run format`, then `npm run check` passes
+- [x] Commit and push (including the new `prisma/migrations` folder); CI green, including the database tests
 
 ## Phase 4a checklist (done)
 

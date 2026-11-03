@@ -3,7 +3,8 @@
 /*
  * Design tokens. Direction: an honest bookkeeper's casino.
  * Paper and ink come from accounting ledgers; felt and brass are reserved for game surfaces.
- * Red ("stamp") follows the accounting convention: negative amounts and the stamp logo only.
+ * Red ("stamp") follows the accounting convention: negative amounts, errors and the stamp logo,
+ * plus the red suits on playing cards.
  */
 @theme {
   --color-paper: #eef2e6;
@@ -19,6 +20,20 @@
 
   --font-display: var(--font-caslon), "Libre Caslon Display", Georgia, serif;
   --font-sans: var(--font-public-sans), "Public Sans", system-ui, sans-serif;
+
+  /* A card sliding onto the table. */
+  --animate-deal: deal-in 260ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+
+  @keyframes deal-in {
+    from {
+      opacity: 0;
+      transform: translate(14px, -18px) rotate(6deg);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 }
 
 html {

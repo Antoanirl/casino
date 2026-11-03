@@ -272,6 +272,8 @@ export interface PublicHand {
   value: HandValue;
   bet: number;
   doubled: boolean;
+  /** Split aces take exactly one card each, so the player can't hit them. */
+  splitAces: boolean;
   status: HandStatus;
   outcome: HandOutcome | null;
 }
@@ -303,6 +305,7 @@ export function toPublicView(state: RoundState): PublicRound {
       value: handValue(hand.cards),
       bet: hand.bet,
       doubled: hand.doubled,
+      splitAces: hand.splitAces,
       status: hand.status,
       outcome: state.outcomes?.[i] ?? null,
     })),

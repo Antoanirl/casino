@@ -30,7 +30,7 @@ export const games: readonly Game[] = [
     category: "table",
     href: "/blackjack",
     description: "Beat the dealer to 21 with hit, stand, double down and split.",
-    status: "coming-soon",
+    status: "playable",
     opensIn: "Phase 4",
     rules: [
       { term: "Goal", detail: "Get closer to 21 than the dealer without going over." },

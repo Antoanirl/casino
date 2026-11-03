@@ -18,6 +18,7 @@ interface GameShellProps {
  * and what the visitor can do now. Each game replaces the table area in its own phase.
  */
 export async function GameShell({ game, backHref = "/", backLabel = "All games" }: GameShellProps) {
+  const isOpen = game.status === "playable";
   const user = await getCurrentUser();
   const balance = user ? await getBalance(getDb(), user.id) : null;
 
@@ -54,10 +55,18 @@ export async function GameShell({ game, backHref = "/", backLabel = "All games" 
           ) : (
             <div className="space-y-3">
               <p className="text-ink-soft text-sm">
-                Create an account now and your {STARTING_BALANCE_CREDITS.toLocaleString("en-US")}{" "}
-                starting credits will be waiting.
+                {isOpen ? "Create an account to play with" : "Create an account now and your"}{" "}
+                {STARTING_BALANCE_CREDITS.toLocaleString("en-US")}{" "}
+                {isOpen ? "free credits." : "starting credits will be waiting."}
               </p>
-              <ButtonLink href="/register">Create an account</ButtonLink>
+              <div className="flex flex-wrap gap-2">
+                <ButtonLink href="/register">Create an account</ButtonLink>
+                {isOpen ? (
+                  <ButtonLink href="/login" variant="secondary">
+                    Log in
+                  </ButtonLink>
+                ) : null}
+              </div>
             </div>
           )}
         </aside>
@@ -68,10 +77,19 @@ export async function GameShell({ game, backHref = "/", backLabel = "All games" 
         >
           <GameArt slug={game.slug} className="mx-auto h-48 w-full max-w-md sm:h-64" />
           <div className="bg-paper text-ink mx-auto mt-8 max-w-sm rounded-md px-5 py-4 text-center shadow-lg sm:-rotate-1">
-            <p className="font-display text-2xl">Table closed</p>
-            <p className="text-ink-soft mt-1 text-sm">
-              {game.name} opens in {game.opensIn} of the build.
-            </p>
+            {isOpen ? (
+              <>
+                <p className="font-display text-2xl">Table open</p>
+                <p className="text-ink-soft mt-1 text-sm">Log in to take a seat.</p>
+              </>
+            ) : (
+              <>
+                <p className="font-display text-2xl">Table closed</p>
+                <p className="text-ink-soft mt-1 text-sm">
+                  {game.name} opens in {game.opensIn} of the build.
+                </p>
+              </>
+            )}
           </div>
         </section>
       </div>
