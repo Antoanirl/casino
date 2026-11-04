@@ -84,12 +84,19 @@ export const games: readonly Game[] = [
     category: "slots",
     href: "/slots/gems",
     description: "Five reels of gemstones with wilds and multipliers.",
-    status: "coming-soon",
+    status: "playable",
     opensIn: "Phase 7",
     rules: [
-      { term: "Reels", detail: "Five reels of gemstones." },
-      { term: "Specials", detail: "Wild symbols substitute for others; multipliers raise a win." },
-      { term: "Engine", detail: "Same slot engine and payout checks as Classic Slots." },
+      { term: "Reels", detail: "Five reels of gemstones and ten paylines." },
+      {
+        term: "Prism wild",
+        detail: "The prism stands in for any gem, and any win it is part of pays double.",
+      },
+      {
+        term: "Return",
+        detail:
+          "95.70% of all bets come back over time, calculated exactly and checked by simulation.",
+      },
     ],
   },
   {
@@ -98,12 +105,20 @@ export const games: readonly Game[] = [
     category: "slots",
     href: "/slots/adventure",
     description: "An expedition-themed slot with a bonus round.",
-    status: "coming-soon",
+    status: "playable",
     opensIn: "Phase 7",
     rules: [
-      { term: "Reels", detail: "Five reels themed on an expedition." },
-      { term: "Bonus round", detail: "Three map symbols start a round of free spins." },
-      { term: "Engine", detail: "Same slot engine and payout checks as Classic Slots." },
+      { term: "Reels", detail: "Five reels of expedition gear and ten paylines." },
+      {
+        term: "Free spins",
+        detail:
+          "Three, four or five maps anywhere start 8, 12 or 20 free spins, with every win doubled.",
+      },
+      {
+        term: "Return",
+        detail:
+          "96.10% of all bets come back over time, free spins included, calculated exactly and checked by simulation.",
+      },
     ],
   },
 ];

@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 7. Gem Slots and Adventure Slots (7a written, 7b next)
-**Next step:** after 7a is pushed and CI is green, start 7b: symbol art for both games, the free-spins sequence on the machine, paytable notes, and opening both games in the lobby.
+**Current phase:** 7. Gem Slots and Adventure Slots (7a done, 7b written)
+**Next step:** play-test both games on localhost, then push 7b. After that, Phase 8: dashboard and statistics.
 
 ## Roadmap
 
@@ -25,13 +25,30 @@ Where the project stands, so work can be picked up from any point.
   - [x] 6a: Config-driven engine, exact RTP, Classic Slots, 1M-spin simulation, spins on the server
   - [x] 6b: The machine: reels, bet picker, paytable, wins highlighted
 - [ ] **Phase 7: Gem Slots and Adventure Slots (configs on the same engine)**
-  - [ ] 7a: Engine: wild multipliers and free spins; Gem and Adventure configs with exact RTP; free-spin rounds on the server
+  - [x] 7a: Engine: wild multipliers and free spins; Gem and Adventure configs with exact RTP; free-spin rounds on the server
   - [ ] 7b: The machines: symbol art, free-spins sequence, paytable notes, games opened in the lobby
 - [ ] Phase 8: Dashboard and statistics
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 7a checklist
+## Phase 7b checklist
+
+Code (written):
+
+- [x] Symbol drawings for Gem Slots (seven gems, each with its own shape) and Adventure Slots (boots, rope, lantern, compass, idol, map)
+- [x] Five-reel machine sized for phones
+- [x] Free spins play out on the reels one by one, with a banner, a running total and "Skip to the total"; reduced motion jumps straight to the result
+- [x] Win lines mention when the prism doubled a win
+- [x] Paytable notes for the wild multiplier and free spins
+- [x] Gem and Adventure Slots open in the lobby, with updated rules
+
+Checks (on your machine):
+
+- [ ] Play-test both games on localhost (desktop and phone width), including a free-spins round
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] Commit and push; CI green; both games live
+
+## Phase 7a checklist (done)
 
 Code (written):
 
@@ -46,9 +63,9 @@ Code (written):
 
 Checks (on your machine):
 
-- [ ] `npx prisma generate` (only comments changed in the schema; no migration needed)
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] Commit and push; CI green
+- [x] `npx prisma generate` (only comments changed in the schema; no migration needed)
+- [x] `npm run format`, then `npm run check` passes
+- [x] Commit and push; CI green
 
 ## Phase 6b checklist (done)
 

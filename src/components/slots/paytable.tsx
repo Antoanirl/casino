@@ -28,6 +28,13 @@ export function Paytable({ config, rtp }: { config: SlotConfig; rtp: number }) {
 
   const top = rows[0]?.pays ?? 0;
   const wild = config.symbols.find((s) => s.kind === "wild");
+  const scatter = config.symbols.find((s) => s.kind === "scatter");
+  const freeSpins = config.freeSpins;
+  const triggers = Object.entries(freeSpins?.triggers ?? {}).map(([count, spins]) => ({
+    count: Number(count),
+    spins: spins ?? 0,
+  }));
+  const multiplierWord = (n: number) => (n === 2 ? "double" : n === 3 ? "triple" : `${n}x`);
 
   return (
     <section aria-labelledby="paytable-heading" className="space-y-4">
@@ -60,8 +67,30 @@ export function Paytable({ config, rtp }: { config: SlotConfig; rtp: number }) {
       </table>
       {wild ? (
         <p className="text-ink-soft text-sm">
-          {wild.name} stands in for any symbol except the scatter.
+          {wild.name} stands in for any symbol{scatter ? ` except the ${scatter.name}` : ""}
+          {wild.multiplier && wild.multiplier > 1
+            ? `, and any win it is part of pays ${multiplierWord(wild.multiplier)}`
+            : ""}
+          .
         </p>
+      ) : null}
+      {freeSpins && scatter && triggers.length > 0 ? (
+        <div className="border-brass/60 bg-sheet space-y-1 rounded-md border px-3 py-2 text-sm">
+          <p className="font-semibold">Free spins</p>
+          <p className="text-ink-soft">
+            {triggers
+              .map(({ count }) => count)
+              .join(", ")
+              .replace(/, (\d+)$/, " or $1")}{" "}
+            {scatter.name}s anywhere start{" "}
+            {triggers
+              .map(({ spins }) => spins)
+              .join(", ")
+              .replace(/, (\d+)$/, " or $1")}{" "}
+            free spins at the same bet. Every free-spin win pays{" "}
+            {multiplierWord(freeSpins.multiplier)}, and free spins can&apos;t start more free spins.
+          </p>
+        </div>
       ) : null}
       <dl className="grid grid-cols-2 gap-3 text-sm">
         <div className="border-rule bg-sheet rounded-md border px-3 py-2">
@@ -74,9 +103,10 @@ export function Paytable({ config, rtp }: { config: SlotConfig; rtp: number }) {
         </div>
       </dl>
       <p className="text-ink-soft text-xs">
-        The return is calculated exactly from the reels and this table, and checked by simulating a
-        million spins in the test suite. Over many spins you get back about that share of what you
-        bet; any single session can go either way.
+        The return is calculated exactly from the reels and this table
+        {freeSpins ? ", free spins included," : ""} and checked by simulating hundreds of thousands
+        of spins in the test suite. Over many spins you get back about that share of what you bet;
+        any single session can go either way.
       </p>
     </section>
   );
