@@ -11,14 +11,27 @@ interface LedgerPageProps {
   /** Rows in chronological order (oldest first), like a real ledger page. */
   rows: LedgerRow[];
   caption?: React.ReactNode;
+  /** Shown when there are no rows. */
+  emptyMessage?: string;
+  /**
+   * Show the closing balance and the "Balanced" stamp. Turn off for filtered views, where the
+   * rows don't add up to the balance on their own.
+   */
+  showBalance?: boolean;
 }
 
 /**
  * A page from an accounting ledger: ruled lines, a red margin rule, negative amounts in red.
- * Used on the homepage (sample or the player's real entries) and later on the dashboard.
+ * Used on the homepage (sample or the player's real entries) and on the dashboard.
  */
-export function LedgerPage({ title, rows, caption }: LedgerPageProps) {
-  const balance = rows.at(-1)?.balanceAfter;
+export function LedgerPage({
+  title,
+  rows,
+  caption,
+  emptyMessage = "No entries yet. Your first bet will be written here.",
+  showBalance = true,
+}: LedgerPageProps) {
+  const balance = showBalance ? rows.at(-1)?.balanceAfter : undefined;
 
   return (
     <figure className="border-rule bg-sheet relative rounded-sm border shadow-[0_1px_0_var(--color-rule),0_18px_40px_-24px_rgb(29_43_58/0.45)]">
@@ -54,7 +67,7 @@ export function LedgerPage({ title, rows, caption }: LedgerPageProps) {
             {rows.length === 0 ? (
               <tr className="border-rule border-b">
                 <td colSpan={4} className="text-ink-soft py-8 pr-4 pl-[7rem] sm:pl-[8rem]">
-                  No entries yet. Your first bet will be written here.
+                  {emptyMessage}
                 </td>
               </tr>
             ) : null}
@@ -78,24 +91,26 @@ export function LedgerPage({ title, rows, caption }: LedgerPageProps) {
         </table>
       </div>
 
-      <div className="flex items-end justify-between gap-4 px-4 pt-4 pb-5 sm:px-6">
-        {rows.length > 0 ? (
-          <span
-            aria-hidden="true"
-            className="border-stamp font-display text-stamp/90 -rotate-6 rounded-sm border-2 px-2 py-0.5 text-lg"
-          >
-            Balanced
-          </span>
-        ) : (
-          <span />
-        )}
-        {balance !== undefined ? (
-          <p className="text-right">
-            <span className="text-ink-soft block text-xs">Balance</span>
-            <span className="figures font-display text-3xl">{formatCredits(balance)}</span>
-          </p>
-        ) : null}
-      </div>
+      {showBalance ? (
+        <div className="flex items-end justify-between gap-4 px-4 pt-4 pb-5 sm:px-6">
+          {rows.length > 0 ? (
+            <span
+              aria-hidden="true"
+              className="border-stamp font-display text-stamp/90 -rotate-6 rounded-sm border-2 px-2 py-0.5 text-lg"
+            >
+              Balanced
+            </span>
+          ) : (
+            <span />
+          )}
+          {balance !== undefined ? (
+            <p className="text-right">
+              <span className="text-ink-soft block text-xs">Balance</span>
+              <span className="figures font-display text-3xl">{formatCredits(balance)}</span>
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       {caption ? (
         <figcaption className="border-rule text-ink-soft border-t px-4 py-3 text-xs sm:px-6">

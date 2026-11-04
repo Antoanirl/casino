@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 8. Dashboard and statistics (8a written)
-**Next step:** after 8a is pushed and CI is green, start 8b: the dashboard page (summary figures, per-game table, balance chart, filtered and paged history).
+**Current phase:** 8. Dashboard and statistics (8a done, 8b written)
+**Next step:** check the dashboard on localhost, push 8b. Then Phase 9: hardening and QA.
 
 ## Roadmap
 
@@ -28,12 +28,28 @@ Where the project stands, so work can be picked up from any point.
   - [x] 7a: Engine: wild multipliers and free spins; Gem and Adventure configs with exact RTP; free-spin rounds on the server
   - [x] 7b: The machines: symbol art, free-spins sequence, paytable notes, games opened in the lobby
 - [ ] **Phase 8: Dashboard and statistics**
-  - [ ] 8a: Server: per-game statistics, balance history, filtered and paged ledger history, with tests
+  - [x] 8a: Server: per-game statistics, balance history, filtered and paged ledger history, with tests
   - [ ] 8b: The dashboard page
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 8a checklist
+## Phase 8b checklist
+
+Code (written):
+
+- [x] Account summary: rounds, staked, net result, return, biggest win, balance
+- [x] Balance chart: server-rendered SVG on ledger rules, starting balance marked, text summary for screen readers
+- [x] Results by game, totalled under a double rule; game names open that game's entries
+- [x] Every entry: game and kind filters as links, 25 per page with older/newer links, shareable URLs
+- [x] Ledger page component: empty-state text and closing balance can be set per use
+
+Checks (on your machine):
+
+- [ ] Check the dashboard on localhost (desktop and phone width)
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] Commit and push; CI green
+
+## Phase 8a checklist (done)
 
 Code (written):
 
@@ -46,8 +62,8 @@ Code (written):
 
 Checks (on your machine):
 
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] Commit and push; CI green (the new database tests run there)
+- [x] `npm run format`, then `npm run check` passes
+- [x] Commit and push; CI green (the new database tests run there)
 
 ## Phase 7b checklist (done)
 
