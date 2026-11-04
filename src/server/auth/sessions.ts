@@ -19,7 +19,10 @@ export function hashSessionToken(token: string): string {
 
 export async function createSession(db: PrismaClient, userId: string) {
   const token = randomToken(32);
-  const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
+  const now = Date.now();
+  const expiresAt = new Date(now + SESSION_DURATION_MS);
+  // Tidy up this user's expired sessions while we're here, so the table doesn't grow forever.
+  await db.session.deleteMany({ where: { userId, expiresAt: { lte: new Date(now) } } });
   await db.session.create({ data: { id: hashSessionToken(token), userId, expiresAt } });
   return { token, expiresAt };
 }

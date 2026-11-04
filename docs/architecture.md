@@ -175,6 +175,10 @@ Read-only queries in `src/server/stats/`; nothing there changes a balance.
 - **Balance history** is the `balanceAfter` of the latest 200 ledger entries.
 - **Ledger history** is paged (25 per page, newest first) and filtered by game and kind of entry. Filters live in the URL (`/dashboard?game=gems&kind=wins&page=2`), so a filtered view can be bookmarked and works without JavaScript; unknown values fall back to the defaults.
 
+## Security (Phase 9)
+
+See [security.md](./security.md) for the threat model. In short: rate limits in PostgreSQL (`src/server/rate-limit.ts`) on sign-in, sign-up and every bet; security headers on every response (`src/lib/security-headers.ts`); expired sessions removed on each sign-in.
+
 ## Decisions log
 
 - **2026-10-15: Slots as a hub page.** Navigation has a single "Slots" entry leading to `/slots`, which lists the three games. Keeps the header short and matches the shared-engine design.
@@ -187,3 +191,4 @@ Read-only queries in `src/server/stats/`; nothing there changes a balance.
 - **2026-11-03: Slot pays as multiples of the total bet.** Rather than a per-line bet, every pay is a multiple of the whole bet in hundredths. Players choose one number, payouts stay whole minor units, and the RTP formula stays simple.
 - **2026-11-04: Free spins settled with the paid spin.** The server plays the whole bonus at once and pays it in one ledger entry, instead of the browser requesting each free spin. Nothing can be left half-finished, and there is no free-spin state to protect from replays.
 - **2026-11-04: Statistics from round tables, history from the ledger.** Rounds answer "how did I do at roulette?"; the ledger answers "where did every credit go?". Both are stored already, so the dashboard needs no new tables.
+- **2026-11-04: Rate limits in PostgreSQL.** Serverless instances share no memory, so counters need shared storage. The database is already there; Redis would add a service and a secret for a few writes a second.

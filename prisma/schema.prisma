@@ -170,3 +170,15 @@ model SlotSpin {
   @@unique([userId, spinKey])
   @@index([userId, game, createdAt])
 }
+
+/// Fixed-window request counters for rate limiting (login, registration, game actions).
+/// `key` is "<rule>:<sha256 of the id>", so no email or IP address is stored in clear.
+model RateLimit {
+  key         String   @id
+  /// When the current window opened.
+  windowStart DateTime
+  /// Requests counted in the current window.
+  count       Int
+
+  @@index([windowStart])
+}

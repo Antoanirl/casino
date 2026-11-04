@@ -10,11 +10,14 @@ import {
 import { AccountTakenError, authenticateUser, registerUser } from "@/server/auth/accounts";
 import { signIn, signOut } from "@/server/auth/current-user";
 import { getDb } from "@/server/db";
+import { consumeRateLimit, describeWait, rateLimits } from "@/server/rate-limit";
+import { clientIp } from "@/server/request";
 
 /**
  * Server actions for the auth forms. Next.js checks that these are only called
  * from this site's own pages (Origin check), and every input is re-validated
- * here: the browser-side checks are only a convenience.
+ * here: the browser-side checks are only a convenience. Sign-ins and sign-ups are rate limited
+ * per IP address (and sign-ins per account too) to slow down password guessing and mass sign-ups.
  */
 
 export interface AuthFormState {
@@ -42,6 +45,17 @@ export async function registerAction(
   const parsed = registerSchema.safeParse(raw);
   if (!parsed.success) return { errors: toFieldErrors(parsed.error), values };
 
+  // Only well-formed attempts count, so fixing a typo doesn't use up the allowance.
+  const limit = await consumeRateLimit(getDb(), rateLimits.registerByIp, await clientIp());
+  if (!limit.allowed) {
+    return {
+      errors: {
+        form: `Too many new accounts from this connection. Try again ${describeWait(limit.retryAfterSeconds)}.`,
+      },
+      values,
+    };
+  }
+
   try {
     const user = await registerUser(getDb(), parsed.data);
     await signIn(user.id);
@@ -64,6 +78,13 @@ export async function loginAction(
   const raw = { email: readField(formData, "email"), password: readField(formData, "password") };
   const values = { email: raw.email };
   const invalid = { errors: { form: "Invalid email or password" }, values };
+  const tooMany = (seconds: number) => ({
+    errors: { form: `Too many sign-in attempts. Try again ${describeWait(seconds)}.` },
+    values,
+  });
+
+  const byIp = await consumeRateLimit(getDb(), rateLimits.loginByIp, await clientIp());
+  if (!byIp.allowed) return tooMany(byIp.retryAfterSeconds);
 
   const parsed = loginSchema.safeParse(raw);
   if (!parsed.success) {
@@ -71,6 +92,11 @@ export async function loginAction(
     // Only reveal "fix your input" errors, never anything about whether the account exists.
     return errors.email ? { errors: { email: errors.email }, values } : invalid;
   }
+
+  // Counted per account as well, so guesses spread across many addresses still hit a wall.
+  // The same message either way, so it doesn't reveal whether the account exists.
+  const byEmail = await consumeRateLimit(getDb(), rateLimits.loginByEmail, parsed.data.email);
+  if (!byEmail.allowed) return tooMany(byEmail.retryAfterSeconds);
 
   try {
     const user = await authenticateUser(getDb(), parsed.data);

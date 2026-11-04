@@ -44,6 +44,7 @@ Open http://localhost:3000.
 ## Project structure
 
 See [docs/architecture.md](./docs/architecture.md) for folder layout, routes, core rules and design decisions.
+See [docs/security.md](./docs/security.md) for the threat model and the defence for each threat.
 
 ## Continuous integration
 

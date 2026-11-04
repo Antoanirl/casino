@@ -7,6 +7,7 @@ import { getDb } from "@/server/db";
 import { InvalidBetsError, type Bet } from "@/server/games/roulette/engine";
 import { recentSpins, spinRoulette, type SpinView } from "@/server/games/roulette/service";
 import { InsufficientFundsError } from "@/server/ledger";
+import { checkPlayRate } from "@/server/rate-limit";
 
 /**
  * What the roulette table calls. The browser sends only the chips it placed (in whole
@@ -43,6 +44,8 @@ const spinSchema = z.object({
 export async function spinRouletteAction(input: unknown): Promise<RouletteResponse> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Log in to play." };
+  const throttled = await checkPlayRate(getDb(), user.id);
+  if (throttled) return { ok: false, error: throttled };
 
   const parsed = spinSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Those bets aren't valid on this table." };

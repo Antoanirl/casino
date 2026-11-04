@@ -7,6 +7,7 @@ import { getDb } from "@/server/db";
 import { InvalidSlotBetError } from "@/server/games/slots/engine";
 import { UnknownSlotGameError, spinSlot, type SlotSpinView } from "@/server/games/slots/service";
 import { InsufficientFundsError } from "@/server/ledger";
+import { checkPlayRate } from "@/server/rate-limit";
 
 /** What the slot machines call. The browser chooses the game and the bet; the server spins. */
 
@@ -22,6 +23,8 @@ const spinSchema = z.object({
 export async function spinSlotAction(input: unknown): Promise<SlotResponse> {
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Log in to play." };
+  const throttled = await checkPlayRate(getDb(), user.id);
+  if (throttled) return { ok: false, error: throttled };
 
   const parsed = spinSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "That bet isn't valid on this machine." };

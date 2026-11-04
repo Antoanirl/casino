@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 8. Dashboard and statistics (8a done, 8b written)
-**Next step:** check the dashboard on localhost, push 8b. Then Phase 9: hardening and QA.
+**Current phase:** 9. Hardening and QA (9a written)
+**Next step:** apply the migration, update CI by hand, push 9a. Then 9b: provably fair outcomes.
 
 ## Roadmap
 
@@ -27,13 +27,34 @@ Where the project stands, so work can be picked up from any point.
 - [x] Phase 7: Gem Slots and Adventure Slots (playable on the live site)
   - [x] 7a: Engine: wild multipliers and free spins; Gem and Adventure configs with exact RTP; free-spin rounds on the server
   - [x] 7b: The machines: symbol art, free-spins sequence, paytable notes, games opened in the lobby
-- [ ] **Phase 8: Dashboard and statistics**
+- [x] Phase 8: Dashboard and statistics (live)
   - [x] 8a: Server: per-game statistics, balance history, filtered and paged ledger history, with tests
-  - [ ] 8b: The dashboard page
-- [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
+  - [x] 8b: The dashboard page
+- [ ] **Phase 9: Hardening and QA**
+  - [ ] 9a: Security: rate limits, security headers, session cleanup, threat model
+  - [ ] 9b: Provably fair outcomes (server seed commitment, client seed, verification page)
+  - [ ] 9c: End-to-end browser tests and accessibility checks
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 8b checklist
+## Phase 9a checklist
+
+Code (written):
+
+- [x] Rate limits stored in PostgreSQL (`RateLimit` table): sign-in per IP and per account, sign-up per IP, bets and moves per player
+- [x] Security headers on every response: Content Security Policy, HSTS, no framing, nosniff, referrer and permissions policies
+- [x] Expired sessions removed on each sign-in
+- [x] `docs/security.md`: threats and the defence for each
+- [x] Unit tests: headers, rate-limit helpers. Integration tests: limits per window, per id, and under 10 simultaneous requests
+
+Setup (on your machine):
+
+- [ ] `npx prisma migrate dev` (applies the new `rate_limits` migration)
+- [ ] Update `.github/workflows/ci.yml` by hand: `actions/checkout@v6` and `actions/setup-node@v6` (CI's Node 20 warning)
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] Commit and push; CI green
+- [ ] Live site sends the new headers
+
+## Phase 8b checklist (done)
 
 Code (written):
 
@@ -45,9 +66,9 @@ Code (written):
 
 Checks (on your machine):
 
-- [ ] Check the dashboard on localhost (desktop and phone width)
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] Commit and push; CI green
+- [x] Check the dashboard on localhost (desktop and phone width)
+- [x] `npm run format`, then `npm run check` passes
+- [x] Commit and push; CI green
 
 ## Phase 8a checklist (done)
 

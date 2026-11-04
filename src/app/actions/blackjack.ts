@@ -15,6 +15,7 @@ import {
   type BlackjackView,
 } from "@/server/games/blackjack/service";
 import { InsufficientFundsError } from "@/server/ledger";
+import { checkPlayRate } from "@/server/rate-limit";
 
 /**
  * What the blackjack table calls. Every input is validated here; the browser only says
@@ -68,6 +69,8 @@ const signedOut: BlackjackResponse = { ok: false, error: "Log in to play." };
 export async function dealBlackjack(input: unknown): Promise<BlackjackResponse> {
   const user = await getCurrentUser();
   if (!user) return signedOut;
+  const throttled = await checkPlayRate(getDb(), user.id);
+  if (throttled) return { ok: false, error: throttled };
 
   const parsed = dealSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Bets are whole credits from 1 to 500." };
@@ -86,6 +89,8 @@ export async function dealBlackjack(input: unknown): Promise<BlackjackResponse> 
 export async function playBlackjack(input: unknown): Promise<BlackjackResponse> {
   const user = await getCurrentUser();
   if (!user) return signedOut;
+  const throttled = await checkPlayRate(getDb(), user.id);
+  if (throttled) return { ok: false, error: throttled };
 
   const parsed = actionSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "That move isn't valid." };

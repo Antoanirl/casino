@@ -18,6 +18,8 @@ Server-only code. Every module here imports `server-only`, so importing one from
   - `current-user.ts`: cookie handling, `getCurrentUser()`, `requireUser()`
 
 - `games/`: one folder per game: a pure rules engine, and a service that runs each round in one transaction through the ledger
+- `rate-limit.ts`: request limits stored in PostgreSQL (`consumeRateLimit`, `checkPlayRate`)
+- `request.ts`: the client IP address, for rate limiting
 - `stats/`: read-only dashboard queries
   - `getPlayerStats(db, userId)`: per-game and overall statistics from the round tables
   - `balanceHistory(db, userId)`: balance after each of the latest ledger entries
