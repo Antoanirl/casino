@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 7. Gem Slots and Adventure Slots (7a done, 7b written)
-**Next step:** play-test both games on localhost, then push 7b. After that, Phase 8: dashboard and statistics.
+**Current phase:** 8. Dashboard and statistics (8a written)
+**Next step:** after 8a is pushed and CI is green, start 8b: the dashboard page (summary figures, per-game table, balance chart, filtered and paged history).
 
 ## Roadmap
 
@@ -24,14 +24,32 @@ Where the project stands, so work can be picked up from any point.
 - [x] Phase 6: Slot engine + Classic Slots (playable on the live site)
   - [x] 6a: Config-driven engine, exact RTP, Classic Slots, 1M-spin simulation, spins on the server
   - [x] 6b: The machine: reels, bet picker, paytable, wins highlighted
-- [ ] **Phase 7: Gem Slots and Adventure Slots (configs on the same engine)**
+- [x] Phase 7: Gem Slots and Adventure Slots (playable on the live site)
   - [x] 7a: Engine: wild multipliers and free spins; Gem and Adventure configs with exact RTP; free-spin rounds on the server
-  - [ ] 7b: The machines: symbol art, free-spins sequence, paytable notes, games opened in the lobby
-- [ ] Phase 8: Dashboard and statistics
+  - [x] 7b: The machines: symbol art, free-spins sequence, paytable notes, games opened in the lobby
+- [ ] **Phase 8: Dashboard and statistics**
+  - [ ] 8a: Server: per-game statistics, balance history, filtered and paged ledger history, with tests
+  - [ ] 8b: The dashboard page
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 7b checklist
+## Phase 8a checklist
+
+Code (written):
+
+- [x] Ledger filters in the URL (`?game=gems&kind=wins&page=2`): parsing, links, and what each filter matches (`src/lib/ledger-filters.ts`)
+- [x] Per-game statistics from the round tables: rounds, staked, returned, net, return %, rounds won, biggest win (`src/server/stats/`)
+- [x] Balance history: the balance after each of the latest 200 ledger entries
+- [x] Ledger history: filtered by game and kind of entry, 25 per page, newest first
+- [x] Unit tests: filters, statistics maths
+- [x] Integration tests: statistics across all three round tables, balance history, paging and filters
+
+Checks (on your machine):
+
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] Commit and push; CI green (the new database tests run there)
+
+## Phase 7b checklist (done)
 
 Code (written):
 
@@ -44,9 +62,9 @@ Code (written):
 
 Checks (on your machine):
 
-- [ ] Play-test both games on localhost (desktop and phone width), including a free-spins round
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] Commit and push; CI green; both games live
+- [x] Play-test both games on localhost (desktop and phone width), including a free-spins round
+- [x] `npm run format`, then `npm run check` passes
+- [x] Commit and push; CI green; both games live
 
 ## Phase 7a checklist (done)
 

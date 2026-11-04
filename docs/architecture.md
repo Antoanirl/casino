@@ -166,6 +166,15 @@ Both new features are config fields, so Gem and Adventure Slots are just two mor
 | Gem Slots       | 5 x 3        | 10       | prism wild, 2x                    | 95.70% | 100x (five prisms)               |
 | Adventure Slots | 5 x 3        | 10       | 3+ maps: 8/12/20 free spins at 2x | 96.10% | 55x per line, more in free spins |
 
+## Dashboard and statistics (Phase 8)
+
+Read-only queries in `src/server/stats/`; nothing there changes a balance.
+
+- **Per-game statistics come from the round tables** (`BlackjackRound`, `RouletteSpin`, `SlotSpin`), one SQL query with `UNION ALL` and `GROUP BY`. A round's stake and payout are what a player thinks of as one game; the ledger splits the same money into bet, payout and refund entries (a blackjack push is a refund). Unfinished blackjack hands are left out and shown separately as "in play".
+- **Figures:** rounds, staked, returned (stakes included), net (returned − staked), return % (returned ÷ staked), rounds won (paid back more than staked) and biggest win (largest single-round profit). The maths is a pure function (`summary.ts`) with unit tests.
+- **Balance history** is the `balanceAfter` of the latest 200 ledger entries.
+- **Ledger history** is paged (25 per page, newest first) and filtered by game and kind of entry. Filters live in the URL (`/dashboard?game=gems&kind=wins&page=2`), so a filtered view can be bookmarked and works without JavaScript; unknown values fall back to the defaults.
+
 ## Decisions log
 
 - **2026-10-15: Slots as a hub page.** Navigation has a single "Slots" entry leading to `/slots`, which lists the three games. Keeps the header short and matches the shared-engine design.
@@ -177,3 +186,4 @@ Both new features are config fields, so Gem and Adventure Slots are just two mor
 - **2026-11-03: Fresh shuffle every blackjack round.** Rounds are independent, card counting is pointless, and a round's full state is just its shoe and the player's actions, which keeps storage and replay simple.
 - **2026-11-03: Slot pays as multiples of the total bet.** Rather than a per-line bet, every pay is a multiple of the whole bet in hundredths. Players choose one number, payouts stay whole minor units, and the RTP formula stays simple.
 - **2026-11-04: Free spins settled with the paid spin.** The server plays the whole bonus at once and pays it in one ledger entry, instead of the browser requesting each free spin. Nothing can be left half-finished, and there is no free-spin state to protect from replays.
+- **2026-11-04: Statistics from round tables, history from the ledger.** Rounds answer "how did I do at roulette?"; the ledger answers "where did every credit go?". Both are stored already, so the dashboard needs no new tables.

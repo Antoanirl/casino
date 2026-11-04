@@ -17,4 +17,8 @@ Server-only code. Every module here imports `server-only`, so importing one from
   - `accounts.ts`: `registerUser` (user + wallet + signup bonus in one transaction), `authenticateUser`
   - `current-user.ts`: cookie handling, `getCurrentUser()`, `requireUser()`
 
-Planned: `games/` (Phase 4 onward).
+- `games/`: one folder per game: a pure rules engine, and a service that runs each round in one transaction through the ledger
+- `stats/`: read-only dashboard queries
+  - `getPlayerStats(db, userId)`: per-game and overall statistics from the round tables
+  - `balanceHistory(db, userId)`: balance after each of the latest ledger entries
+  - `ledgerHistory(db, userId, filters)`: one filtered page of the ledger
