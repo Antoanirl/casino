@@ -1,6 +1,11 @@
 import "server-only";
 import { Prisma, type PrismaClient, type SlotSpin } from "@prisma/client";
-import { evaluateSpin, type SlotConfig, type SlotOutcome } from "@/server/games/slots/engine";
+import {
+  evaluateSpin,
+  settleRound,
+  type SlotConfig,
+  type SlotOutcome,
+} from "@/server/games/slots/engine";
 import { getSlotConfig } from "@/server/games/slots/games";
 import { applyLedgerEntry } from "@/server/ledger";
 import { randomInt } from "@/server/rng";
@@ -9,6 +14,10 @@ import { randomInt } from "@/server/rng";
  * Slot spins, for every slot game. Same shape as roulette: one spin is one transaction
  * (pick stops -> save the spin -> debit the bet -> credit any win), and (userId, spinKey)
  * is unique so a repeated request returns the original spin instead of charging again.
+ *
+ * A paid spin that starts free spins is settled as one round: the server draws the free
+ * spins' stops straight away, stores every set of stops on the same row, and pays the whole
+ * round's win as a single ledger entry. The browser only plays the round back.
  */
 
 export class UnknownSlotGameError extends Error {
@@ -18,10 +27,16 @@ export class UnknownSlotGameError extends Error {
   }
 }
 
-export interface SlotSpinView extends SlotOutcome {
+export interface SlotSpinView extends Omit<SlotOutcome, "payout"> {
   spinId: string;
   game: string;
   createdAt: string;
+  /** Minor units returned for the paid spin alone. */
+  basePayout: number;
+  /** Free spins this spin started, in order (empty for most spins). */
+  freeSpins: SlotOutcome[];
+  /** Minor units returned for the whole round: paid spin plus free spins. */
+  payout: number;
 }
 
 export interface SlotSpinResult {
@@ -32,7 +47,10 @@ export interface SlotSpinResult {
 }
 
 export interface SlotOptions {
-  /** Replaces the secure RNG. Tests use it to choose the stops; production never sets it. */
+  /**
+   * Replaces the secure RNG. Called once for the paid spin, then once per free spin it awards.
+   * Tests use it to choose the stops; production never sets it.
+   */
   chooseStops?: (config: SlotConfig) => number[];
 }
 
@@ -42,10 +60,24 @@ function configFor(game: string): SlotConfig {
   return config;
 }
 
+/** Stops are stored as one list per spin of the round; Phase 6 rows hold a single flat list. */
+function storedStops(value: Prisma.JsonValue): number[][] {
+  const list = value as unknown as number[] | number[][];
+  return typeof list[0] === "number" ? [list as number[]] : (list as number[][]);
+}
+
 function toView(spin: SlotSpin): SlotSpinView {
   const config = configFor(spin.game);
-  const outcome = evaluateSpin(config, spin.stops as unknown as number[], spin.bet);
-  return { ...outcome, spinId: spin.id, game: spin.game, createdAt: spin.createdAt.toISOString() };
+  const round = settleRound(config, storedStops(spin.stops), spin.bet);
+  return {
+    ...round.base,
+    basePayout: round.base.payout,
+    freeSpins: round.freeSpins,
+    payout: round.payout,
+    spinId: spin.id,
+    game: spin.game,
+    createdAt: spin.createdAt.toISOString(),
+  };
 }
 
 function secureStops(config: SlotConfig): number[] {
@@ -63,9 +95,12 @@ export async function spinSlot(
   options: SlotOptions = {},
 ): Promise<SlotSpinResult> {
   const config = configFor(input.game);
-  const stops = (options.chooseStops ?? secureStops)(config);
+  const choose = options.chooseStops ?? secureStops;
+  const first = choose(config);
   // Validates the bet and the stops before anything is written.
-  const outcome = evaluateSpin(config, stops, input.bet);
+  const awarded = evaluateSpin(config, first, input.bet).freeSpinsAwarded;
+  const stops = [first, ...Array.from({ length: awarded }, () => choose(config))];
+  const outcome = settleRound(config, stops, input.bet);
   const ledgerGame = `slots:${config.slug}`;
 
   try {
@@ -88,7 +123,7 @@ export async function spinSlot(
         idempotencyKey: `${ledgerGame}:${spin.id}:bet`,
         game: ledgerGame,
         reference: spin.id,
-        metadata: { stops },
+        metadata: { stops: first },
       });
 
       if (outcome.payout > 0) {
@@ -99,7 +134,7 @@ export async function spinSlot(
           idempotencyKey: `${ledgerGame}:${spin.id}:payout`,
           game: ledgerGame,
           reference: spin.id,
-          metadata: { stops },
+          metadata: { freeSpins: awarded },
         }));
       }
 

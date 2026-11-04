@@ -11,6 +11,9 @@ const url = process.env.DATABASE_URL_TEST;
 // Classic Slots stops: sevens across the middle line, and a spin with no win at all.
 const SEVENS = [2, 5, 10];
 const NOTHING = [0, 0, 2];
+// Adventure Slots stops with a map on the top row of reels 1-3 (8 free spins), then the free spins.
+const THREE_MAPS = [23, 11, 28, 2, 0];
+const FREE_SPINS = Array.from({ length: 8 }, (_, i) => [i, i, i, i, i]);
 
 describe.skipIf(!url)("slot spins (database)", () => {
   const db = new PrismaClient({
@@ -104,6 +107,58 @@ describe.skipIf(!url)("slot spins (database)", () => {
     await db.wallet.update({ where: { userId }, data: { balance: 100 } });
     await expect(spin(userId, NOTHING, 500)).rejects.toBeInstanceOf(InsufficientFundsError);
     expect(await db.slotSpin.count()).toBe(0);
+  });
+
+  it("settles a paid spin and its free spins as one round with one payout", async () => {
+    const userId = await createPlayer();
+    const queue = [THREE_MAPS, ...FREE_SPINS];
+    const result = await spinSlot(
+      db,
+      userId,
+      { game: "adventure", bet: 500, spinKey: crypto.randomUUID() },
+      { chooseStops: () => queue.shift()! },
+    );
+    expect(queue).toEqual([]);
+    expect(result.spin.freeSpinsAwarded).toBe(8);
+    expect(result.spin.freeSpins.map((s) => s.stops)).toEqual(FREE_SPINS);
+    expect(result.spin.scatterWin).toMatchObject({ symbol: "map", count: 3 });
+    expect(result.spin.payout).toBe(
+      result.spin.basePayout + result.spin.freeSpins.reduce((sum, s) => sum + s.payout, 0),
+    );
+    expect(result.spin.payout).toBeGreaterThan(result.spin.basePayout);
+    expect(result.balance).toBe(STARTING_BALANCE - 500 + result.spin.payout);
+
+    const entries = await db.ledgerEntry.findMany({
+      where: { userId, reference: result.spin.spinId },
+      orderBy: { createdAt: "asc" },
+    });
+    expect(entries.map((e) => [e.type, e.amount, e.game])).toEqual([
+      ["BET", -500, "slots:adventure"],
+      ["PAYOUT", result.spin.payout, "slots:adventure"],
+    ]);
+
+    // Reading it back replays the same round from the stored stops.
+    const [saved] = await recentSlotSpins(db, userId, "adventure");
+    expect(saved).toEqual(result.spin);
+    expect((await verifyWallet(db, userId)).consistent).toBe(true);
+  });
+
+  it("still reads spins saved before free spins existed", async () => {
+    const userId = await createPlayer();
+    await db.slotSpin.create({
+      data: {
+        userId,
+        game: "classic",
+        spinKey: "old",
+        bet: 500,
+        stops: SEVENS,
+        totalPayout: 50_000,
+      },
+    });
+    const [old] = await recentSlotSpins(db, userId, "classic");
+    expect(old?.stops).toEqual(SEVENS);
+    expect(old?.freeSpins).toEqual([]);
+    expect(old?.payout).toBe(old?.basePayout);
   });
 
   it("lists a player's recent spins on one game, newest first", async () => {

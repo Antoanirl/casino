@@ -157,9 +157,11 @@ model SlotSpin {
   spinKey     String
   /// Minor units.
   bet         Int
-  /// Reel stops chosen by the secure RNG, one per reel.
+  /// Reel stops chosen by the secure RNG: one list per spin of the round (the paid spin first,
+  /// then any free spins it started), each with one stop per reel. Rows from before free spins
+  /// existed hold a single flat list.
   stops       Json
-  /// Minor units returned to the player (0 on a loss).
+  /// Minor units returned to the player for the whole round (0 on a loss).
   totalPayout Int
   createdAt   DateTime @default(now())
 

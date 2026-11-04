@@ -4,22 +4,29 @@ import {
   InvalidSlotBetError,
   evaluateLine,
   evaluateSpin,
+  freeSpinsChance,
+  settleRound,
   theoreticalRtp,
   validateConfig,
   type SlotConfig,
 } from "@/server/games/slots/engine";
+import { adventureSlots } from "@/server/games/slots/games/adventure";
 import { classicSlots } from "@/server/games/slots/games/classic";
+import { gemSlots } from "@/server/games/slots/games/gems";
 import { slotConfigs } from "@/server/games/slots/games";
 
 /** Mean pays (in multiples of the bet) and hit rate over every possible combination of stops. */
-function enumerate(config: SlotConfig) {
+function enumerate(config: SlotConfig, freeSpin = false) {
   let total = 0;
   let hits = 0;
   let count = 0;
+  let awarded = 0;
   const stops = new Array<number>(config.reels.length).fill(0);
   const visit = (reel: number) => {
     if (reel === config.reels.length) {
-      const pays = evaluateSpin(config, stops, config.bets[0]!).pays;
+      const outcome = evaluateSpin(config, stops, config.bets[0]!, freeSpin);
+      const pays = outcome.pays;
+      awarded += outcome.freeSpinsAwarded;
       total += pays;
       if (pays > 0) hits++;
       count++;
@@ -31,7 +38,44 @@ function enumerate(config: SlotConfig) {
     }
   };
   visit(0);
-  return { rtp: total / count / 100, hitRate: hits / count };
+  return { rtp: total / count / 100, hitRate: hits / count, meanFreeSpins: awarded / count };
+}
+
+/** Runs n random paid rounds (base spin plus any free spins) and checks the mean against the maths. */
+function simulate(config: SlotConfig, n: number) {
+  const draw = () => config.reels.map((strip) => randomInt(0, strip.length));
+  let sum = 0;
+  let sumSquares = 0;
+  for (let i = 0; i < n; i++) {
+    const first = draw();
+    const awarded = evaluateSpin(config, first, 100).freeSpinsAwarded;
+    const stops = [first, ...Array.from({ length: awarded }, draw)];
+    const x = settleRound(config, stops, 100).payout / 100;
+    sum += x;
+    sumSquares += x * x;
+  }
+  const mean = sum / n;
+  const sd = Math.sqrt(sumSquares / n - mean * mean);
+  return { mean, standardError: sd / Math.sqrt(n) };
+}
+
+/** Stops that show the scatter on the top row of the given reels and none anywhere else. */
+function stopsWithScatters(
+  config: SlotConfig,
+  scatter: string,
+  reels: readonly number[],
+): number[] {
+  return config.reels.map((strip, r) => {
+    const shows = (stop: number) =>
+      Array.from({ length: config.rows }, (_, row) => strip[(stop + row) % strip.length]);
+    const stop = strip.findIndex((_, i) =>
+      reels.includes(r)
+        ? strip[i] === scatter && shows(i).filter((id) => id === scatter).length === 1
+        : !shows(i).includes(scatter),
+    );
+    if (stop < 0) throw new Error(`no suitable stop on reel ${r}`);
+    return stop;
+  });
 }
 
 /** A tiny game with a wild and a scatter, to test the rules Classic Slots doesn't use. */
@@ -60,6 +104,14 @@ const toy: SlotConfig = {
   bets: [100, 500],
 };
 
+/** The toy game with a 3x wild and a free-spins bonus. */
+const toyBonus: SlotConfig = {
+  ...toy,
+  slug: "toy-bonus",
+  symbols: toy.symbols.map((s) => (s.id === "w" ? { ...s, multiplier: 3 } : s)),
+  freeSpins: { triggers: { 2: 1, 3: 4 }, multiplier: 2 },
+};
+
 describe("slot configs", () => {
   it.each(Object.values(slotConfigs).map((c) => [c.slug, c] as const))(
     "%s is internally consistent",
@@ -79,22 +131,58 @@ describe("slot configs", () => {
     expect(Math.abs(exact.rtp - rtp)).toBeLessThan(1e-12);
     expect(exact.hitRate.toFixed(3)).toBe("0.256");
   });
+
+  it("Gem Slots returns exactly 95.70%", () => {
+    expect(theoreticalRtp(gemSlots).toFixed(4)).toBe("0.9570");
+  });
+
+  it("Adventure Slots returns exactly 96.10%, free spins included", () => {
+    expect(theoreticalRtp(adventureSlots).toFixed(4)).toBe("0.9610");
+    // About one paid round in 40 starts free spins.
+    expect(1 / freeSpinsChance(adventureSlots)).toBeGreaterThan(38);
+    expect(1 / freeSpinsChance(adventureSlots)).toBeLessThan(41);
+  });
 });
 
 describe("line rules", () => {
   it("pays matching symbols from the left only", () => {
-    expect(evaluateLine(toy, ["a", "a", "a"])).toEqual({ symbol: "a", count: 3, pays: 300 });
-    expect(evaluateLine(toy, ["b", "b", "a"])).toEqual({ symbol: "b", count: 2, pays: 50 });
+    expect(evaluateLine(toy, ["a", "a", "a"])).toEqual({
+      symbol: "a",
+      count: 3,
+      pays: 300,
+      wildMultiplier: 1,
+    });
+    expect(evaluateLine(toy, ["b", "b", "a"])).toEqual({
+      symbol: "b",
+      count: 2,
+      pays: 50,
+      wildMultiplier: 1,
+    });
     expect(evaluateLine(toy, ["a", "b", "b"])).toBeNull();
   });
 
   it("lets a wild stand in for a normal symbol", () => {
-    expect(evaluateLine(toy, ["w", "a", "a"])).toEqual({ symbol: "a", count: 3, pays: 300 });
-    expect(evaluateLine(toy, ["a", "w", "w"])).toEqual({ symbol: "a", count: 3, pays: 300 });
+    expect(evaluateLine(toy, ["w", "a", "a"])).toEqual({
+      symbol: "a",
+      count: 3,
+      pays: 300,
+      wildMultiplier: 1,
+    });
+    expect(evaluateLine(toy, ["a", "w", "w"])).toEqual({
+      symbol: "a",
+      count: 3,
+      pays: 300,
+      wildMultiplier: 1,
+    });
   });
 
   it("pays a run of wilds as wilds when that is worth more", () => {
-    expect(evaluateLine(toy, ["w", "w", "w"])).toEqual({ symbol: "w", count: 3, pays: 1_000 });
+    expect(evaluateLine(toy, ["w", "w", "w"])).toEqual({
+      symbol: "w",
+      count: 3,
+      pays: 1_000,
+      wildMultiplier: 1,
+    });
   });
 
   it("never lets a scatter take part in a line", () => {
@@ -116,6 +204,117 @@ describe("line rules", () => {
   });
 });
 
+describe("wild multipliers", () => {
+  it("multiplies a win the wild takes part in, once per line", () => {
+    expect(evaluateLine(toyBonus, ["w", "a", "a"])).toEqual({
+      symbol: "a",
+      count: 3,
+      pays: 900,
+      wildMultiplier: 3,
+    });
+    expect(evaluateLine(toyBonus, ["a", "w", "w"])).toEqual({
+      symbol: "a",
+      count: 3,
+      pays: 900,
+      wildMultiplier: 3,
+    });
+    expect(evaluateLine(toyBonus, ["a", "a", "a"])).toEqual({
+      symbol: "a",
+      count: 3,
+      pays: 300,
+      wildMultiplier: 1,
+    });
+  });
+
+  it("pays a run of wilds alone at the wild's own price, unmultiplied", () => {
+    expect(evaluateLine(toyBonus, ["w", "w", "w"])).toEqual({
+      symbol: "w",
+      count: 3,
+      pays: 1_000,
+      wildMultiplier: 1,
+    });
+  });
+
+  it("doubles Gem Slots wins that use a prism", () => {
+    expect(evaluateLine(gemSlots, ["prism", "ruby", "ruby", "topaz", "topaz"])).toEqual({
+      symbol: "ruby",
+      count: 3,
+      pays: 130,
+      wildMultiplier: 2,
+    });
+    expect(evaluateLine(gemSlots, ["prism", "prism", "prism", "prism", "diamond"])).toEqual({
+      symbol: "diamond",
+      count: 5,
+      pays: 8_000,
+      wildMultiplier: 2,
+    });
+    expect(evaluateLine(gemSlots, ["prism", "prism", "prism", "prism", "prism"])).toMatchObject({
+      symbol: "prism",
+      pays: 10_000,
+    });
+  });
+});
+
+describe("free spins", () => {
+  it("awards free spins for enough scatters on a paid spin only", () => {
+    const stops = stopsWithScatters(toyBonus, "s", [0, 1, 2]);
+    expect(evaluateSpin(toyBonus, stops, 100).freeSpinsAwarded).toBe(4);
+    expect(evaluateSpin(toyBonus, stops, 100, true).freeSpinsAwarded).toBe(0);
+    expect(evaluateSpin(toyBonus, stopsWithScatters(toyBonus, "s", []), 100).freeSpinsAwarded).toBe(
+      0,
+    );
+  });
+
+  it("multiplies every free-spin win, line and scatter alike", () => {
+    for (let i = 0; i < 500; i++) {
+      const stops = toyBonus.reels.map((strip) => randomInt(0, strip.length));
+      const paid = evaluateSpin(toyBonus, stops, 100);
+      const free = evaluateSpin(toyBonus, stops, 100, true);
+      expect(free.pays).toBe(paid.pays * 2);
+      expect(free.payout).toBe(paid.payout * 2);
+    }
+  });
+
+  it("settles a round as one paid spin plus exactly the spins it awarded", () => {
+    const first = stopsWithScatters(toyBonus, "s", [0, 1, 2]);
+    const extra = [
+      [0, 0, 0],
+      [1, 2, 3],
+      [2, 4, 6],
+      [first[0]!, first[1]!, first[2]!],
+    ];
+    const round = settleRound(toyBonus, [first, ...extra], 500);
+    expect(round.freeSpins).toHaveLength(4);
+    expect(round.freeSpins.every((s) => s.freeSpinsAwarded === 0)).toBe(true);
+    expect(round.payout).toBe(
+      round.base.payout + round.freeSpins.reduce((sum, s) => sum + s.payout, 0),
+    );
+
+    expect(() => settleRound(toyBonus, [first], 500)).toThrow(RangeError);
+    expect(() => settleRound(toyBonus, [first, ...extra, [0, 0, 0]], 500)).toThrow(RangeError);
+    const quiet = stopsWithScatters(toyBonus, "s", []);
+    expect(() => settleRound(toyBonus, [quiet, [1, 1, 1]], 500)).toThrow(RangeError);
+    expect(settleRound(toyBonus, [quiet], 500).freeSpins).toEqual([]);
+    expect(() => settleRound(toyBonus, [], 500)).toThrow(RangeError);
+  });
+
+  it("starts Adventure free spins on three maps", () => {
+    const first = stopsWithScatters(adventureSlots, "map", [0, 1, 2]);
+    const base = evaluateSpin(adventureSlots, first, 100);
+    expect(base.scatterWin).toMatchObject({ symbol: "map", count: 3, pays: 170 });
+    expect(base.freeSpinsAwarded).toBe(8);
+  });
+
+  it("computes the exact RTP with multipliers and free spins, matching brute force", () => {
+    // Expected round = E[paid spin] + E[spins awarded] x E[free spin], all enumerated directly.
+    const paid = enumerate(toyBonus);
+    const free = enumerate(toyBonus, true);
+    const exact = paid.rtp + paid.meanFreeSpins * free.rtp;
+    expect(paid.meanFreeSpins).toBeGreaterThan(0);
+    expect(Math.abs(exact - theoreticalRtp(toyBonus))).toBeLessThan(1e-12);
+  });
+});
+
 describe("spins", () => {
   it("pays three sevens on the middle line at 100x the bet", () => {
     // Sevens sit at index 3, 6 and 11 on the three reels; the middle row is stop + 1.
@@ -126,6 +325,7 @@ describe("spins", () => {
       symbol: "seven",
       count: 3,
       pays: 10_000,
+      wildMultiplier: 1,
       cells: [
         [0, 1],
         [1, 1],
@@ -169,4 +369,14 @@ describe("simulation", () => {
     // Five standard errors: a correct engine fails this about once in 3.5 million runs.
     expect(Math.abs(mean - rtp)).toBeLessThan((5 * sd) / Math.sqrt(n));
   }, 60_000);
+
+  it("500,000 Gem Slots spins agree with the maths", () => {
+    const { mean, standardError } = simulate(gemSlots, 500_000);
+    expect(Math.abs(mean - theoreticalRtp(gemSlots))).toBeLessThan(5 * standardError);
+  }, 120_000);
+
+  it("300,000 Adventure Slots rounds, free spins included, agree with the maths", () => {
+    const { mean, standardError } = simulate(adventureSlots, 300_000);
+    expect(Math.abs(mean - theoreticalRtp(adventureSlots))).toBeLessThan(5 * standardError);
+  }, 120_000);
 });

@@ -2,8 +2,8 @@
 
 Where the project stands, so work can be picked up from any point.
 
-**Current phase:** 6. Slot engine + Classic Slots (6b written, waiting on checks)
-**Next step:** run the 6b checks below and play some spins; then Phase 6 is done and Phase 7 (Gem and Adventure Slots) is next.
+**Current phase:** 7. Gem Slots and Adventure Slots (7a written, 7b next)
+**Next step:** after 7a is pushed and CI is green, start 7b: symbol art for both games, the free-spins sequence on the machine, paytable notes, and opening both games in the lobby.
 
 ## Roadmap
 
@@ -21,28 +21,50 @@ Where the project stands, so work can be picked up from any point.
 - [x] Phase 5: Roulette (playable on the live site)
   - [x] 5a: Rules engine, spins in the database through the ledger, server actions, tests
   - [x] 5b: The table: betting layout, wheel, results
-- [ ] **Phase 6: Slot engine + Classic Slots**
+- [x] Phase 6: Slot engine + Classic Slots (playable on the live site)
   - [x] 6a: Config-driven engine, exact RTP, Classic Slots, 1M-spin simulation, spins on the server
-  - [ ] 6b: The machine: reels, bet picker, paytable, wins highlighted
-- [ ] Phase 7: Gem Slots and Adventure Slots (configs on the same engine)
+  - [x] 6b: The machine: reels, bet picker, paytable, wins highlighted
+- [ ] **Phase 7: Gem Slots and Adventure Slots (configs on the same engine)**
+  - [ ] 7a: Engine: wild multipliers and free spins; Gem and Adventure configs with exact RTP; free-spin rounds on the server
+  - [ ] 7b: The machines: symbol art, free-spins sequence, paytable notes, games opened in the lobby
 - [ ] Phase 8: Dashboard and statistics
 - [ ] Phase 9: Hardening and QA (audit, rate limiting, e2e, accessibility, provably fair)
 - [ ] Phase 10: Portfolio packaging (monitoring, docs, screenshots, demo video)
 
-## Phase 6b checklist
+## Phase 7a checklist
+
+Code (written):
+
+- [x] Engine: wilds can carry a multiplier (applied once per winning line)
+- [x] Engine: free spins: enough scatters on a paid spin start N free spins at the same bet, every win multiplied, no retriggers; `settleRound()` settles the paid spin plus its free spins
+- [x] Exact RTP now includes the free-spins bonus; checked against brute force on a toy game
+- [x] Gem Slots config: 5 reels, 10 paylines, 2x prism wild, **RTP 95.70%**
+- [x] Adventure Slots config: 5 reels, 10 paylines, map scatter, 8/12/20 free spins at 2x, **RTP 96.10%**
+- [x] Simulations: 500,000 Gem spins and 300,000 Adventure rounds must agree with the maths
+- [x] Server: a round's stops (paid spin + free spins) stored on one row, one payout for the round; old spins still readable
+- [x] Integration tests: free-spin round through the ledger, reading old rows
+
+Checks (on your machine):
+
+- [ ] `npx prisma generate` (only comments changed in the schema; no migration needed)
+- [ ] `npm run format`, then `npm run check` passes
+- [ ] Commit and push; CI green
+
+## Phase 6b checklist (done)
 
 Code (written):
 
 - [x] Slot symbols drawn as icons (`src/components/slots/symbol-art.tsx`), reel spin and stop animations
 - [x] Generic slot machine driven by the config: reels stop left to right on the server's stops, winning lines drawn, wins explained, bet picker (`slot-machine.tsx`)
 - [x] Paytable built from the config, with the exact return to player and top win (`paytable.tsx`)
+- [x] Play-test fixes: plural symbol names, compact bet buttons on phones
 - [x] Classic Slots page for players; Classic marked playable; payline names in the config
 
 Checks (on your machine):
 
-- [ ] `npm run format`, then `npm run check` passes
-- [ ] `npm run dev`: spin a few times at different bets; try a narrow window
-- [ ] Commit and push; CI green
+- [x] `npm run format`, then `npm run check` passes
+- [x] `npm run dev`: spin a few times at different bets; try a narrow window
+- [x] Commit and push; CI green
 
 ## Phase 6a checklist (done)
 

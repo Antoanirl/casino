@@ -151,6 +151,21 @@ Rules engine in `src/server/games/roulette/engine.ts`, pure like blackjack's: th
 
 **Server:** `SlotSpin` rows store the game, bet and reel stops (the outcome is fully determined by them). A spin is one transaction (save the spin, debit the bet, credit the win), with the same `(userId, spinKey)` replay protection as roulette. Ledger entries use the game name `slots:<slug>`.
 
+## Slots: wild multipliers and free spins (Phase 7)
+
+Both new features are config fields, so Gem and Adventure Slots are just two more files in `games/`.
+
+- **Wild multipliers:** a wild may carry `multiplier` (a whole number). A line win that uses at least one multiplying wild pays that many times over, once per line with the largest multiplier in the run. A line made only of wilds pays the wild's own price, unmultiplied.
+- **Free spins:** `freeSpins: { triggers, multiplier }`. A paid spin showing enough scatters awards that many free spins at the same bet; every free-spin win (line and scatter) is multiplied, and free spins can't retrigger.
+- **One round, one payout:** the server draws the free spins' stops right after seeing the award, stores the whole round's stops on the same `SlotSpin` row (`stops` is a list of stop lists; Phase 6 rows hold one flat list and are still read), and credits the round's total win as a single `PAYOUT` entry. The browser only plays the round back.
+- **Exact RTP with the bonus:** a free spin is an ordinary spin with its wins multiplied, so it is worth `multiplier x E[spin]`. The return is `E[spin] + sum over k of P(k scatters) x spins awarded for k x multiplier x E[spin]`. A test checks this against brute force on a toy game with a 3x wild and free spins.
+
+| Game            | Reels x rows | Paylines | Feature                           | RTP    | Top win                          |
+| --------------- | ------------ | -------- | --------------------------------- | ------ | -------------------------------- |
+| Classic Slots   | 3 x 3        | 5        | none                              | 95.70% | 100x                             |
+| Gem Slots       | 5 x 3        | 10       | prism wild, 2x                    | 95.70% | 100x (five prisms)               |
+| Adventure Slots | 5 x 3        | 10       | 3+ maps: 8/12/20 free spins at 2x | 96.10% | 55x per line, more in free spins |
+
 ## Decisions log
 
 - **2026-10-15: Slots as a hub page.** Navigation has a single "Slots" entry leading to `/slots`, which lists the three games. Keeps the header short and matches the shared-engine design.
@@ -161,3 +176,4 @@ Rules engine in `src/server/games/roulette/engine.ts`, pure like blackjack's: th
 - **2026-11-03: Ledger-paper visual identity.** A light, accounting-inspired theme instead of the dark felt-and-gold casino default: it matches the name, makes the ledger the hero, and keeps felt for the game tables where it belongs.
 - **2026-11-03: Fresh shuffle every blackjack round.** Rounds are independent, card counting is pointless, and a round's full state is just its shoe and the player's actions, which keeps storage and replay simple.
 - **2026-11-03: Slot pays as multiples of the total bet.** Rather than a per-line bet, every pay is a multiple of the whole bet in hundredths. Players choose one number, payouts stay whole minor units, and the RTP formula stays simple.
+- **2026-11-04: Free spins settled with the paid spin.** The server plays the whole bonus at once and pays it in one ledger entry, instead of the browser requesting each free spin. Nothing can be left half-finished, and there is no free-spin state to protect from replays.
